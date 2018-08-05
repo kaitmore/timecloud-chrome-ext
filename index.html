@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css" integrity="sha384-h21C2fcDk/eFsW9sC9h0dhokq5pDinLNklTKoxIZRUn3+hvmgQSffLLQ4G4l2eEr"
+    crossorigin="anonymous">
+  <style>
+    *:focus {
+      outline: none;
+    }
+
+    body {
+      background: -webkit-linear-gradient(-45deg, rgba(26, 51, 73, 1) 0%, rgba(15, 24, 43, 1) 100%);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      font-size: 20px;
+    }
+
+
+    a {
+      color: white;
+    }
+
+
+    a:hover {
+      color: goldenrod;
+      text-decoration: none;
+    }
+
+    input {
+      width: 250px;
+      height: 55px;
+      color: white;
+      border: none;
+      border-bottom: 2px solid white;
+      font-size: 35px;
+      background: transparent;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      border-bottom: 2px solid white;
+      padding: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      margin: 5px;
+    }
+
+    li#list-view-title {
+      font-size: 25px;
+      color: orange;
+      border-bottom: 4px solid white;
+    }
+
+    .bg {
+      display: inline;
+      background: #6db76c;
+      padding: 0 15px;
+      margin: 9px;
+    }
+
+    .btn {
+      margin: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+
+    .glyphicon {
+      color: white;
+      font-size: 30px;
+      top: 13px;
+      padding: 0 15px;
+    }
+
+    #tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 6px;
+      font: 18px sans-serif;
+      font-weight: bold;
+      background: lightyellow;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    #list-view-container {
+      color: white;
+      margin: 200px;
+      padding: 0 10px;
+      overflow: scroll;
+      display: none;
+    }
+
+    #search {
+      position: absolute;
+      top: 0;
+      padding: 10px;
+    }
+
+    #controls {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      top: 0;
+      right: 0;
+      padding: 10px;
+    }
+
+    #viz-wrapper {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #reset {
+      display: none;
+    }
+
+    #search-form {
+      display: inline
+    }
+
+    #error {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      position: fixed;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 36px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="search">
+    <span class="glyphicon glyphicon-search"></span>
+    <input type=text id="search-input">
+    </input>
+    <button id="reset" class="btn btn-danger">Reset</button>
+  </div>
+  <div id="controls">
+    <button id="list-view-button" class="btn btn-info">List</button>
+    <button id="graph-view-button" class="btn btn-warning" disabled="true">Graph</button>
+  </div>
+  <div id="list-view-container">
+    <ul id="list-view-list">
+    </ul>
+  </div>
+  <div id='error'>Start surfin' to see results 🏄‍</div>
+  <script defer src=" https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js "></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js "></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3-scale/1.0.7/d3-scale.min.js "></script>
+  <script defer src="helpers.js "></script>
+  <script defer src="index.js "></script>
+</body>

@@ -1,0 +1,17 @@
+{
+  "name": "Time Cloud",
+  "version": "1.0.0",
+  "description": "A chrome extension that visualizes your time on the web",
+  "permissions": ["history", "tabs", "storage", "webNavigation"],
+  "background": { "scripts": ["background.js"], "persistent": false },
+  "browser_action": {
+    "default_title": "populate: history tracker",
+    "default_icon": "icons/icon16.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "content_security_policy":
+    "script-src 'self' https://cdnjs.cloudflare.com/; object-src 'self'",
+  "manifest_version": 2
+}
