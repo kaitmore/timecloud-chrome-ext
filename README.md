@@ -1,7 +1,7 @@
-# TimeCloud
+# ☁️ TimeCloud ☁️
 
-TimeCloud is a chrome extension that visualizes your most frequented visits on the new tab page. You have the ability to filter these items and view the result in both graph and list view.
+TimeCloud is a chrome extension that visualizes the time you spend surfin' the web. Each circle in the cloud represents the time spent on that website. You have the ability to filter these items and view the result in both graph and list view.
 
-I used d3 for the graph and javascript to create the interface.
+![](screenshot.jpg)
 
 Download it on the [chrome store](https://chrome.google.com/webstore/detail/populate/gnckamlehhmecnafkcneapmpnnjggppe)
