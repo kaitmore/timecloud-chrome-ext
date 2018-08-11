@@ -229,7 +229,7 @@ function renderGraphView(items) {
 chrome.tabs.onActivated.addListener(function(x) {
   chrome.tabs.get(x.tabId, function(active) {
     let localStorageItems = getItems();
-    if (active.url.includes("chrome://newtab") && !localStorageItems.length) {
+    if (active.url.includes("chrome://newtab") && localStorageItems.length) {
       drawView(localStorageItems);
     }
   });
@@ -240,7 +240,7 @@ chrome.windows.onFocusChanged.addListener(function(newWindowId) {
   if (newWindowId > 0) {
     chrome.tabs.getSelected(newWindowId, function(active) {
       let localStorageItems = getItems();
-      if (active.url.includes("chrome://newtab") && !localStorageItems.length) {
+      if (active.url.includes("chrome://newtab") && localStorageItems.length) {
         drawView(localStorageItems);
       }
     });
