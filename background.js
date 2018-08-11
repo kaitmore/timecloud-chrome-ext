@@ -14,7 +14,6 @@ let initialState = {
 };
 
 // TODO: change the data structure so we can store more data about the active site
-
 function checkForLocalStorage() {
   // Set initial state in localstorage
   if (!localStorage.getItem("populate")) {
