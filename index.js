@@ -5,6 +5,7 @@ const listViewButton = document.getElementById("list-view-button");
 const listViewContainer = document.getElementById("list-view-container");
 const listViewList = document.getElementById("list-view-list");
 const error = document.getElementById("error");
+const search = document.getElementById("search");
 let searchInput = document.getElementById("search-input");
 let listView = false;
 let searchTerm;
@@ -32,6 +33,7 @@ resetButton.addEventListener("click", e => {
 listViewButton.addEventListener("click", e => {
   // Clean up DOM
   listView = true;
+  search.style.display = "inline";
   body.removeChild(document.querySelector("svg"));
   listViewContainer.style.display = "block";
   listViewButton.setAttribute("disabled", true);
@@ -42,6 +44,7 @@ listViewButton.addEventListener("click", e => {
 graphViewButton.addEventListener("click", e => {
   // Clean up DOM
   listView = false;
+  search.style.display = "none";
   listViewContainer.style.display = "none";
   graphViewButton.setAttribute("disabled", true);
   listViewButton.removeAttribute("disabled");
@@ -52,14 +55,14 @@ function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
   let items = Object.keys(storedSites)
     .filter(key => !key.startsWith("_"))
+    .slice(0, 100)
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
       return { url: site, time: storedSites[site] };
     })
     .sort((a, b) => {
       return a.time > b.time ? -1 : 1;
-    })
-    .slice(0, 100);
+    });
   return items;
 }
 
@@ -225,8 +228,9 @@ function renderGraphView(items) {
 // redraw when tab is activated
 chrome.tabs.onActivated.addListener(function(x) {
   chrome.tabs.get(x.tabId, function(active) {
-    if (active.url === "chrome://newtab/") {
-      drawView(getItems());
+    let localStorageItems = getItems();
+    if (active.url.includes("chrome://newtab") && !localStorageItems.length) {
+      drawView(localStorageItems);
     }
   });
 });
@@ -235,8 +239,9 @@ chrome.tabs.onActivated.addListener(function(x) {
 chrome.windows.onFocusChanged.addListener(function(newWindowId) {
   if (newWindowId > 0) {
     chrome.tabs.getSelected(newWindowId, function(active) {
-      if (active.url === "chrome://newtab/") {
-        drawView(getItems());
+      let localStorageItems = getItems();
+      if (active.url.includes("chrome://newtab") && !localStorageItems.length) {
+        drawView(localStorageItems);
       }
     });
   }
