@@ -118,6 +118,6 @@ function validateAndSetNewActiveSiteAndStartTime(newSite) {
 function getBaseUrl(url) {
   var temp = document.createElement("a");
   temp.href = url;
-  let baseUrl = temp.origin.replace(/[https*:\\]*www./, "");
+  let baseUrl = temp.origin.replace(/[https*:\\]*www./, "") || temp.origin;
   return baseUrl;
 }
