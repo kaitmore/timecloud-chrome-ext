@@ -19,6 +19,15 @@
       font-size: 20px;
     }
 
+    #footer-controls {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      bottom: 0;
+      right: 0;
+      padding: 10px;
+    }
 
     a {
       color: white;
@@ -152,12 +161,15 @@
     <button id="reset" class="btn btn-danger">Reset</button>
   </div>
   <div id="controls">
+    <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
     <button id="list-view-button" class="btn btn-info">List</button>
-    <button id="graph-view-button" class="btn btn-warning" disabled="true">Graph</button>
   </div>
   <div id="list-view-container">
     <ul id="list-view-list">
     </ul>
+  </div>
+  <div id="footer-controls">
+    <button id="download-button" class="btn btn-warning">Download</button>
   </div>
   <div id='error'>Start surfin' to see results 🏄‍</div>
   <script defer src=" https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js "></script>

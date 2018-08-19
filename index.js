@@ -6,6 +6,7 @@ const listViewContainer = document.getElementById("list-view-container");
 const listViewList = document.getElementById("list-view-list");
 const error = document.getElementById("error");
 const search = document.getElementById("search");
+const download = document.getElementById("download-button");
 let searchInput = document.getElementById("search-input");
 let listView = false;
 let searchTerm;
@@ -49,6 +50,11 @@ graphViewButton.addEventListener("click", e => {
   graphViewButton.setAttribute("disabled", true);
   listViewButton.removeAttribute("disabled");
   drawView(getItems());
+});
+
+download.addEventListener("click", e => {
+  e.preventDefault();
+  downloadCSV();
 });
 
 function getItems() {
@@ -243,4 +249,18 @@ function renderGraphView(items) {
       });
     }
   });
+}
+
+function downloadCSV() {
+  const csvContent = "data:text/csv;charset=utf-8,";
+  const sites = JSON.parse(localStorage.getItem("populate"));
+  const pairs = ["Site, Timing (ms)"];
+  Object.keys(sites)
+    .filter(key => !key.startsWith("_"))
+    .forEach(site => {
+      console.log("SITE", site);
+      pairs.push(site + "," + sites[site]);
+    });
+  csvContent += pairs.join("\n");
+  window.open(encodeURI(csvContent));
 }
