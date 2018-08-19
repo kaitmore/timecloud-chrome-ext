@@ -97,9 +97,8 @@ blacklistButton.addEventListener("click", e => {
 
 function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
-
   let items = Object.keys(storedSites)
-    .filter(key => !key.startsWith("_"))
+    .filter(key => !key.startsWith("_") && key !== "null")
     .slice(0, 100)
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
@@ -108,6 +107,7 @@ function getItems() {
     .sort((a, b) => {
       return a.time > b.time ? -1 : 1;
     });
+
   return items;
 }
 
@@ -314,7 +314,6 @@ function downloadCSV() {
   Object.keys(sites)
     .filter(key => !key.startsWith("_"))
     .forEach(site => pairs.push(site + "," + sites[site]));
-
   csvContent += pairs.join("\n");
   window.open(encodeURI(csvContent));
 }

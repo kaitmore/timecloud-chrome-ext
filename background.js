@@ -84,6 +84,7 @@ function validateNewSite(newSite) {
     // validation and return
     if (!isTransitionValid) return false;
   }
+
   // get blacklist from localstorage
   let blacklist = JSON.parse(localStorage.getItem("populate"))._blacklist;
 
@@ -93,14 +94,14 @@ function validateNewSite(newSite) {
 }
 
 function saveToLocalStorage() {
+  const activeSiteUrl = getBaseUrl(activeSite.url);
   let endTime = Date.now();
   let currentState = JSON.parse(localStorage.getItem("populate"));
-  let localStorageVal = currentState[getBaseUrl(activeSite.url)];
+  let localStorageVal = currentState[activeSiteUrl];
   if (localStorageVal) {
-    currentState[getBaseUrl(activeSite.url)] =
-      localStorageVal + (endTime - startTime);
+    currentState[activeSiteUrl] = localStorageVal + (endTime - startTime);
   } else {
-    currentState[getBaseUrl(activeSite.url)] = endTime - startTime;
+    currentState[activeSiteUrl] = endTime - startTime;
   }
   localStorage.setItem("populate", JSON.stringify(currentState));
 }
@@ -118,6 +119,6 @@ function validateAndSetNewActiveSiteAndStartTime(newSite) {
 function getBaseUrl(url) {
   var temp = document.createElement("a");
   temp.href = url;
-  let baseUrl = temp.origin.replace(/[https*:\\]*www./, "") || temp.origin;
+  let baseUrl = temp.origin.replace(/[https*:\\]*www./, "");
   return baseUrl;
 }
