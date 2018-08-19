@@ -53,6 +53,7 @@ graphViewButton.addEventListener("click", e => {
 
 function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
+
   let items = Object.keys(storedSites)
     .filter(key => !key.startsWith("_"))
     .slice(0, 100)
@@ -122,26 +123,19 @@ function renderGraphView(items) {
     .attr("id", "tooltip")
     .style("opacity", 0);
 
-  const max = d3.max(items, function(d) {
-    return d.time;
-  });
-
-  const compressedDataPoints = compress(items, max);
-
-  const nodes = compressedDataPoints.map(function(d) {
+  const nodes = items.map(function(d) {
     return {
-      radius: d.radius,
       time: d.time,
       url: d.url
     };
   });
 
-  let newScaledData = [];
+  // Scale data
   const minDataPoint = d3.min(nodes, function(d) {
-    return d.radius;
+    return d.time;
   });
   const maxDataPoint = d3.max(nodes, function(d) {
-    return d.radius;
+    return d.time;
   });
 
   const linearScale = d3
@@ -149,10 +143,10 @@ function renderGraphView(items) {
     .domain([minDataPoint, maxDataPoint])
     .range([8, 100]);
 
-  for (var i = 0; i < nodes.length; i++) {
-    newScaledData[i] = Object.assign({}, nodes[i]);
-    newScaledData[i].radius = linearScale(nodes[i].radius);
-  }
+  let newScaledData = nodes.map(node => ({
+    ...node,
+    radius: linearScale(node.time)
+  }));
 
   const color = d3.scaleOrdinal(d3.schemeCategory20c);
 
@@ -223,26 +217,30 @@ function renderGraphView(items) {
 
     circles.exit().remove();
   }
-}
+  // }
 
-// redraw when tab is activated
-chrome.tabs.onActivated.addListener(function(x) {
-  chrome.tabs.get(x.tabId, function(active) {
-    let localStorageItems = getItems();
-    if (active.url.includes("chrome://newtab") && localStorageItems.length) {
-      drawView(localStorageItems);
-    }
-  });
-});
-
-// redraw when window is focused
-chrome.windows.onFocusChanged.addListener(function(newWindowId) {
-  if (newWindowId > 0) {
-    chrome.tabs.getSelected(newWindowId, function(active) {
+  // redraw when tab is activated
+  chrome.tabs.onActivated.addListener(function(x) {
+    chrome.tabs.get(x.tabId, function(active) {
       let localStorageItems = getItems();
       if (active.url.includes("chrome://newtab") && localStorageItems.length) {
         drawView(localStorageItems);
       }
     });
-  }
-});
+  });
+
+  // redraw when window is focused
+  chrome.windows.onFocusChanged.addListener(function(newWindowId) {
+    if (newWindowId > 0) {
+      chrome.tabs.getSelected(newWindowId, function(active) {
+        let localStorageItems = getItems();
+        if (
+          active.url.includes("chrome://newtab") &&
+          localStorageItems.length
+        ) {
+          drawView(localStorageItems);
+        }
+      });
+    }
+  });
+}
