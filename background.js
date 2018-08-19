@@ -102,7 +102,6 @@ function saveToLocalStorage() {
   } else {
     currentState[getBaseUrl(activeSite.url)] = endTime - startTime;
   }
-  console.log("Saving to local storage", "current active site:");
   localStorage.setItem("populate", JSON.stringify(currentState));
 }
 
@@ -119,5 +118,6 @@ function validateAndSetNewActiveSiteAndStartTime(newSite) {
 function getBaseUrl(url) {
   var temp = document.createElement("a");
   temp.href = url;
-  return temp.origin + "/";
+  let baseUrl = temp.origin.replace(/^(?:https?:\/\/)?(?:www\.)?/, "");
+  return baseUrl;
 }
