@@ -68,21 +68,28 @@
       border-bottom: 4px solid white;
     }
 
-    .bg {
-      display: inline;
-      background: #6db76c;
-      padding: 0 15px;
-      margin: 9px;
+    #left-controls {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 10px;
+    }
+
+    #right-controls {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 10px;
     }
 
     .btn {
       margin: 10px;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
       letter-spacing: 1px;
     }
 
-    .glyphicon {
+    #search-icon {
       color: white;
       font-size: 30px;
       top: 13px;
@@ -110,20 +117,14 @@
     }
 
     #search {
-      position: absolute;
       display: none;
-      top: 0;
       padding: 10px;
     }
 
     #controls {
       position: absolute;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       top: 0;
-      right: 0;
-      padding: 10px;
+      width: 100vw;
     }
 
     #viz-wrapper {
@@ -149,30 +150,132 @@
       color: white;
       font-size: 36px;
     }
+
+    /* Dropdown Button */
+
+    .dropbtn {
+      background: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24' fill ='#6db76c' ><path fill='#fff' d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>");
+      background-position: 100% 55%;
+      background-repeat: no-repeat;
+      color: white;
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+
+    /* The search field */
+
+    .myInput {
+      border-box: box-sizing;
+      font-size: 16px;
+      padding: 10px;
+      border: none;
+      color: black;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* The search field when it gets focus/clicked on */
+
+    #myInput:focus {
+      outline: 3px solid #ddd;
+    }
+
+    /* The container <div> - needed to position the dropdown content */
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Dropdown Content (Hidden by Default) */
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f6f6f6;
+      min-width: 230px;
+      border: 1px solid #ddd;
+      z-index: 1;
+      max-height: 40vh;
+      overflow: scroll;
+      margin: 10px;
+    }
+
+    /* Links inside the dropdown */
+
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    /* Change color of dropdown links on hover */
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1
+    }
+
+    /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+
+    .show {
+      display: block;
+    }
+
+    .blacklist-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      align-items: center;
+
+    }
+
+    .blacklist-item:hover {
+      background-color: #eee;
+    }
+
+    .blacklist-remove {
+      cursor: pointer;
+      color: red;
+      font-size: 12px;
+    }
   </style>
 </head>
 
 <body>
 
-  <div id="search">
-    <span class="glyphicon glyphicon-search"></span>
-    <input type=text id="search-input">
-    </input>
-    <button id="reset" class="btn btn-danger">Reset</button>
+
+  <div id="left-controls">
+    <div class="dropdown">
+      <button id="dropbtn" class="btn btn-danger">Blacklist</button>
+      <button id="download-button" class="btn btn-warning">Download</button>
+      <div id="dropdown-container" class="dropdown-content">
+        <input type="text" placeholder="Add blacklisted site" class="myInput" id="blacklist-input">
+        <div id="blacklist-content">
+        </div>
+      </div>
+    </div>
+    <div id="search">
+      <span class="glyphicon glyphicon-search" id="search-icon"></span>
+      <input type="text" id="search-input">
+      </input>
+      <button id="reset" class="btn btn-danger">Reset</button>
+    </div>
   </div>
-  <div id="controls">
+  <div id="right-controls">
     <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
     <button id="list-view-button" class="btn btn-info">List</button>
   </div>
+
+
   <div id="list-view-container">
     <ul id="list-view-list">
     </ul>
   </div>
-  <div id="footer-controls">
-    <button id="download-button" class="btn btn-warning">Download</button>
-  </div>
   <div id='error'>Start surfin' to see results 🏄‍</div>
-  <script defer src=" https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js "></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js "></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js "></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3-scale/1.0.7/d3-scale.min.js "></script>
   <script defer src="helpers.js "></script>

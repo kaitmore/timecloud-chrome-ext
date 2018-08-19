@@ -7,6 +7,10 @@ const listViewList = document.getElementById("list-view-list");
 const error = document.getElementById("error");
 const search = document.getElementById("search");
 const download = document.getElementById("download-button");
+const dropbtn = document.getElementById("dropbtn");
+const blacklistInput = document.getElementById("blacklist-input");
+const blacklistContainer = document.getElementById("dropdown-container");
+const blacklistContent = document.getElementById("blacklist-content");
 let searchInput = document.getElementById("search-input");
 let listView = false;
 let searchTerm;
@@ -16,7 +20,61 @@ if (!getItems().length) {
   error.style.visibility = "visible";
 } else {
   drawView(getItems());
+  getBlacklist().forEach(site => {
+    let div = document.createElement("div");
+    div.className = "blacklist-item";
+    div.id = site;
+    let siteName = document.createElement("span");
+    let remove = document.createElement("span");
+    siteName.innerText = site;
+    remove.className = "blacklist-remove glyphicon glyphicon-remove-circle";
+    remove.setAttribute("data-value", site);
+    div.appendChild(siteName);
+    div.appendChild(remove);
+    blacklistContent.prepend(div);
+  });
 }
+
+blacklistContent.addEventListener("click", function(e) {
+  if (e.target.classList.contains("blacklist-remove")) {
+    let itemToRemove = document.getElementById(e.target.dataset.value);
+    blacklistContent.removeChild(itemToRemove);
+    let currentState = JSON.parse(localStorage.getItem("populate"));
+    currentState._blacklist = currentState._blacklist.filter(
+      site => site.trim() !== itemToRemove.id.trim()
+    );
+    localStorage.setItem("populate", JSON.stringify(currentState));
+  }
+});
+
+blacklistInput.addEventListener("keyup", e => {
+  if (event.keyCode === 13) {
+    let newBlacklistSite = e.target.value.trim();
+    let currentState = JSON.parse(localStorage.getItem("populate"));
+    if (!currentState._blacklist.includes(newBlacklistSite)) {
+      currentState._blacklist.push(newBlacklistSite);
+      localStorage.setItem("populate", JSON.stringify(currentState));
+
+      let div = document.createElement("div");
+      div.className = "blacklist-item";
+      div.id = newBlacklistSite;
+      let siteName = document.createElement("span");
+      let remove = document.createElement("span");
+      siteName.innerText = newBlacklistSite;
+      remove.setAttribute("data-value", newBlacklistSite);
+      remove.className = "blacklist-remove glyphicon glyphicon-remove-circle";
+      div.appendChild(siteName);
+      div.appendChild(remove);
+      blacklistContent.prepend(div);
+    }
+    blacklistInput.value = "";
+  }
+});
+
+dropbtn.addEventListener("click", e => {
+  e.preventDefault();
+  blacklistContainer.classList.toggle("show");
+});
 
 searchInput.addEventListener("input", e => {
   e.preventDefault();
@@ -73,6 +131,10 @@ function getItems() {
   return items;
 }
 
+function getBlacklist() {
+  return JSON.parse(localStorage.getItem("populate"))._blacklist;
+}
+
 function drawView(items) {
   if (listView) {
     renderListView(items);
@@ -116,7 +178,6 @@ function renderGraphView(items) {
 
   const height = window.innerHeight;
   const width = window.innerWidth;
-
   // Create the canvas
   d3.select("body")
     .append("svg")
@@ -223,7 +284,6 @@ function renderGraphView(items) {
 
     circles.exit().remove();
   }
-  // }
 
   // redraw when tab is activated
   chrome.tabs.onActivated.addListener(function(x) {
