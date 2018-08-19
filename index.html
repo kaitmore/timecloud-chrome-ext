@@ -64,6 +64,7 @@
       top: 0;
       left: 0;
       padding: 10px;
+      display: flex;
     }
 
     #right-controls {
@@ -78,6 +79,7 @@
       margin: 10px;
       font-weight: bold;
       letter-spacing: 1px;
+      border: none;
     }
 
     #search-icon {
@@ -139,9 +141,6 @@
     /* Dropdown Button */
 
     .dropbtn {
-      background: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24' fill ='#6db76c' ><path fill='#fff' d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>");
-      background-position: 100% 55%;
-      background-repeat: no-repeat;
       color: white;
       padding: 16px;
       font-size: 16px;
@@ -176,7 +175,6 @@
       width: 265px;
       border: 1px solid #ddd;
       z-index: 1;
-      height: 40vh;
       overflow: scroll;
       margin: 10px;
     }
@@ -203,6 +201,30 @@
       color: red;
       font-size: 18px;
     }
+
+    select {
+      -webkit-appearance: none;
+      background: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24' ><path fill='white'  d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>");
+      background-position: 108% 58%;
+      background-repeat: no-repeat;
+      border-radius: 0;
+      font-weight: bold;
+      font-size: 18px;
+      letter-spacing: 1px;
+      border: none;
+      height: 47px;
+      width: 100px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .bg {
+      display: inline-block;
+      background: #6db76c;
+      padding: 0 15px;
+      margin: 10px;
+      height: 45px;
+    }
   </style>
 </head>
 
@@ -212,6 +234,13 @@
   <div id="left-controls">
     <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
     <button id="list-view-button" class="btn btn-info">List</button>
+    <div class="bg">
+      <select id="sort">
+        <option selected="selected" value="alltime">All Time</option>
+        <option value="week">Week</option>
+        <option value="day">Day</option>
+      </select>
+    </div>
     <div id="search">
       <span class="glyphicon glyphicon-search" id="search-icon"></span>
       <input type="text" id="search-input">
@@ -224,7 +253,7 @@
     <div class="dropdown">
       <button id="dropbtn" class="btn btn-danger">Blacklist</button>
       <button id="download-button" class="btn btn-warning">Download</button>
-      <div id="dropdown-container" class="dropdown-content">
+      <div id="dropdown-container" class="dropdown-content" tabindex="1">
         <input type="text" placeholder="Add site to blacklist" id="blacklist-input">
         <div id="blacklist-content">
         </div>

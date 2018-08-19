@@ -97,11 +97,17 @@ function saveToLocalStorage() {
   const activeSiteUrl = getBaseUrl(activeSite.url);
   let endTime = Date.now();
   let currentState = JSON.parse(localStorage.getItem("populate"));
+  let newTiming = endTime - startTime;
   let localStorageVal = currentState[activeSiteUrl];
   if (localStorageVal) {
-    currentState[activeSiteUrl] = localStorageVal + (endTime - startTime);
+    let previousTimings = localStorageVal[0];
+    let previousTimestamps = localStorageVal[1];
+    currentState[activeSiteUrl] = [
+      [newTiming, ...previousTimings],
+      [endTime, ...previousTimestamps]
+    ];
   } else {
-    currentState[activeSiteUrl] = endTime - startTime;
+    currentState[activeSiteUrl] = [[newTiming], [endTime]];
   }
   localStorage.setItem("populate", JSON.stringify(currentState));
 }

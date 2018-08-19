@@ -1,3 +1,6 @@
+const MS_IN_DAY = 8.64e7;
+const MS_IN_WEEK = 6.048e8;
+
 const body = document.querySelector("body");
 const resetButton = document.getElementById("reset");
 const graphViewButton = document.getElementById("graph-view-button");
@@ -11,9 +14,12 @@ const blacklistButton = document.getElementById("dropbtn");
 const blacklistInput = document.getElementById("blacklist-input");
 const blacklistContainer = document.getElementById("dropdown-container");
 const blacklistContent = document.getElementById("blacklist-content");
+const timeseriesFilterDropdown = document.getElementById("sort");
+
 let searchInput = document.getElementById("search-input");
 let listView = false;
 let searchTerm;
+let timeseriesFilter;
 
 // Display error message if there is no data
 if (!getItems().length) {
@@ -22,6 +28,11 @@ if (!getItems().length) {
   drawView(getItems());
   createBlacklistDropdownElements(getBlacklist());
 }
+
+timeseriesFilterDropdown.addEventListener("change", e => {
+  timeseriesFilter = e.target.value;
+  drawView(getItems());
+});
 
 searchInput.addEventListener("input", e => {
   e.preventDefault();
@@ -93,24 +104,45 @@ blacklistInput.addEventListener("keyup", e => {
 blacklistButton.addEventListener("click", toggleBlacklistDropdown);
 blacklistButton.addEventListener("blur", toggleBlacklistDropdown);
 
-function toggleBlacklistDropdown() {
+function toggleBlacklistDropdown(e) {
   blacklistContainer.classList.toggle("show");
 }
 
 function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
   let items = Object.keys(storedSites)
-    .filter(key => !key.startsWith("_") && key !== "null")
+    .filter(site => !site.startsWith("_") && site !== "null")
     .slice(0, 100)
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
-      return { url: site, time: storedSites[site] };
+      return { url: site, time: getTiming(storedSites[site]) };
     })
     .sort((a, b) => {
       return a.time > b.time ? -1 : 1;
     });
 
   return items;
+}
+
+function getTiming(timeseriesData) {
+  let timings = timeseriesData[0];
+  let timestamps = timeseriesData[1];
+  let now = Date.now();
+  const getTotalTime = (total, timing) => total + timing;
+
+  switch (timeseriesFilter) {
+    case "day":
+      return timings
+        .filter((x, idx) => timestamps[idx] > now - MS_IN_DAY)
+        .reduce(getTotalTime, 0);
+    case "week":
+      return timings
+        .filter((x, idx) => timestamps[idx] > now - MS_IN_WEEK)
+        .reduce(getTotalTime, 0);
+    case "alltime":
+    default:
+      return timings.reduce(getTotalTime, 0);
+  }
 }
 
 function getBlacklist() {
