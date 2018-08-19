@@ -62,7 +62,7 @@ downloadButton.addEventListener("click", e => {
   downloadCSV();
 });
 
-// Listener for blacklist-remove button
+// Listener to remove items from the blacklist dropdown
 blacklistContent.addEventListener("click", function(e) {
   if (e.target.classList.contains("blacklist-remove")) {
     let itemToRemove = document.getElementById(e.target.dataset.value);
@@ -89,11 +89,13 @@ blacklistInput.addEventListener("keyup", e => {
   }
 });
 
-// Listener to show/hide blacklist dropdown
-blacklistButton.addEventListener("click", e => {
-  e.preventDefault();
+// Listeners to show/hide blacklist dropdown
+blacklistButton.addEventListener("click", toggleBlacklistDropdown);
+blacklistButton.addEventListener("blur", toggleBlacklistDropdown);
+
+function toggleBlacklistDropdown() {
   blacklistContainer.classList.toggle("show");
-});
+}
 
 function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
