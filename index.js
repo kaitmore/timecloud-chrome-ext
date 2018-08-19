@@ -312,9 +312,9 @@ function renderGraphView(items) {
 }
 
 function downloadCSV() {
-  const csvContent = "data:text/csv;charset=utf-8,";
-  const sites = JSON.parse(localStorage.getItem("populate"));
-  const pairs = ["Site, Timing (ms)"];
+  let csvContent = "data:text/csv;charset=utf-8,";
+  let sites = JSON.parse(localStorage.getItem("populate"));
+  let pairs = ["Site, Time Spent (ms)"];
   Object.keys(sites)
     .filter(key => !key.startsWith("_"))
     .forEach(site => {
