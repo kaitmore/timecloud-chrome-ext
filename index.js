@@ -235,6 +235,10 @@ function renderGraphView(items) {
     radius: linearScale(node.time)
   }));
 
+  const totalTimeSpent = newScaledData.reduce((total, curr) => {
+    return total + curr.time;
+  }, 0);
+
   const color = d3.scaleOrdinal(d3.schemeCategory20c);
 
   d3.forceSimulation(newScaledData)
@@ -287,7 +291,14 @@ function renderGraphView(items) {
       circle.style("stroke-width", 4);
 
       tooltip
-        .html(d.url + "<br/> - <br/>Time Spent: " + msToMinAndSec(d.time))
+        .html(
+          d.url +
+            "<br/> - <br/>Time Spent: " +
+            msToMinAndSec(d.time) +
+            " <br/> Percentage: " +
+            ((d.time * 100) / totalTimeSpent).toFixed(2) +
+            "%"
+        )
         .style("left", d3.event.pageX + "px")
         .style("top", d3.event.pageY + "px")
         .style("opacity", 0.9)
