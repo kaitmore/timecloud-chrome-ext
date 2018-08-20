@@ -69,7 +69,7 @@ function handleNewWindow(newWindowId) {
     clearActiveSiteAndStartTime();
   } else if (newWindowId > 0) {
     // If we've brought a different window into focus, we should query for the currently selected
-    //  tab in that new window and call our new site handler
+    // tab in that new window and call our new site handler
     chrome.tabs.query({ active: true, currentWindow: true }, function(newTab) {
       if (newTab.length === 1) {
         handleNewSite(newTab[0]);
@@ -79,7 +79,7 @@ function handleNewWindow(newWindowId) {
 }
 
 function handleNewState(newState) {
-  if (newState !== "active") {
+  if (newState !== "active" && activeSite) {
     saveToLocalStorage();
     clearActiveSiteAndStartTime();
   }
@@ -113,6 +113,10 @@ function validateNewSite(newSite) {
 }
 
 function saveToLocalStorage() {
+  // chrome.tabs.captureVisibleTab(null, {}, function(image) {
+  //   console.log(image);
+  //   // You can add that image HTML5 canvas, or Element.
+  // });
   const activeSiteUrl = getBaseUrl(activeSite.url);
   let endTime = Date.now();
   let currentState = JSON.parse(localStorage.getItem("populate"));
