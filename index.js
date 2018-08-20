@@ -16,6 +16,7 @@ const blacklistContainer = document.getElementById("dropdown-container");
 const blacklistContent = document.getElementById("blacklist-content");
 const timeseriesFilterDropdown = document.getElementById("sort");
 
+const timeSeriesFilters = { alltime: "All Time", day: "Day", week: "Week" };
 let searchInput = document.getElementById("search-input");
 let listView = false;
 let searchTerm;
@@ -27,11 +28,15 @@ if (!getItems().length) {
 } else {
   drawView(getItems());
   createBlacklistDropdownElements(getBlacklist());
+  createTimeseriesFilterDropdown();
 }
 
 timeseriesFilterDropdown.addEventListener("change", e => {
   timeseriesFilter = e.target.value;
   drawView(getItems());
+  let currentState = JSON.parse(localStorage.getItem("populate"));
+  currentState._settings.timeseriesFilter = timeseriesFilter;
+  localStorage.setItem("populate", JSON.stringify(currentState));
 });
 
 searchInput.addEventListener("input", e => {
@@ -102,7 +107,6 @@ blacklistInput.addEventListener("keyup", e => {
 
 // Listeners to show/hide blacklist dropdown
 blacklistButton.addEventListener("click", toggleBlacklistDropdown);
-blacklistButton.addEventListener("blur", toggleBlacklistDropdown);
 
 function toggleBlacklistDropdown(e) {
   blacklistContainer.classList.toggle("show");
@@ -115,7 +119,10 @@ function getItems() {
     .slice(0, 100)
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
-      return { url: site, time: getTiming(storedSites[site]) };
+      return {
+        url: site,
+        time: getTiming(storedSites[site], timeseriesFilter)
+      };
     })
     .sort((a, b) => {
       return a.time > b.time ? -1 : 1;
@@ -124,13 +131,13 @@ function getItems() {
   return items;
 }
 
-function getTiming(timeseriesData) {
+function getTiming(timeseriesData, filter) {
   let timings = timeseriesData[0];
   let timestamps = timeseriesData[1];
   let now = Date.now();
   const getTotalTime = (total, timing) => total + timing;
-
-  switch (timeseriesFilter) {
+  console.log("timeseriesData", timeseriesData, filter);
+  switch (filter) {
     case "day":
       return timings
         .filter((x, idx) => timestamps[idx] > now - MS_IN_DAY)
@@ -325,6 +332,21 @@ function renderGraphView(items) {
   });
 }
 
+function createTimeseriesFilterDropdown() {
+  let currentState = JSON.parse(localStorage.getItem("populate"));
+  timeseriesFilter = currentState._settings.timeseriesFilter;
+
+  Object.keys(timeSeriesFilters).forEach(filter => {
+    let option = document.createElement("option");
+    option.value = filter;
+    option.innerText = timeSeriesFilters[filter];
+    if (filter === timeseriesFilter) {
+      option.setAttribute("selected", true);
+    }
+    timeseriesFilterDropdown.appendChild(option);
+  });
+}
+
 function createBlacklistDropdownElements(sites) {
   sites.forEach(site => {
     let div = document.createElement("div");
@@ -345,9 +367,16 @@ function downloadCSV() {
   let csvContent = "data:text/csv;charset=utf-8,";
   let sites = JSON.parse(localStorage.getItem("populate"));
   let pairs = ["Site, Time Spent (ms)"];
+
+  // console.log(getTiming(sites, "alltime"));
+
   Object.keys(sites)
     .filter(key => !key.startsWith("_"))
-    .forEach(site => pairs.push(site + "," + sites[site]));
+    .forEach(site => getTiming(sites[site], "alltime"));
+  // .forEach(site => {
+  //   console.log("site", site);
+  //   // pairs.push(site + "," + sites[site]);
+  // });
   csvContent += pairs.join("\n");
-  window.open(encodeURI(csvContent));
+  // window.open(encodeURI(csvContent));
 }

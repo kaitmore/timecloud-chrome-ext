@@ -10,7 +10,10 @@ let initialState = {
     "chrome-devtools",
     "mailto:",
     "file://"
-  ]
+  ],
+  _settings: {
+    timeseriesFilter: "alltime"
+  }
 };
 
 // TODO: change the data structure so we can store more data about the active site
@@ -30,21 +33,30 @@ chrome.webNavigation.onCommitted.addListener(handleNewSite);
 /* LISTEN FOR WINDOW FOCUS */
 chrome.windows.onFocusChanged.addListener(handleNewWindow);
 
+/* LISTEN FOR IDLE STATE */
+chrome.idle.onStateChanged.addListener(handleNewState);
+
 function handleNewSite(incomingSite) {
   checkForLocalStorage();
-  let incomingSiteId = incomingSite.tabId || incomingSite.id;
+  let incomingSiteId = incomingSite.id || incomingSite.tabId;
   // query for more info about the new tab (like URL),
   // since `newTab` only gives us a tab & window id
   chrome.tabs.get(incomingSiteId, function(newSite) {
-    if (!newSite) return;
-    // if we have an active site already and that active site url is different
-    // than the new tab's url, we need to set the end time for the previous site
-    // and save the timing to local storage
-    if (activeSite && getBaseUrl(newSite.url) !== getBaseUrl(activeSite.url)) {
-      saveToLocalStorage();
-      validateAndSetNewActiveSiteAndStartTime(newSite);
-    } else if (!activeSite) {
-      validateAndSetNewActiveSiteAndStartTime(newSite);
+    if (chrome.runtime.lastError) {
+      console.warning(chrome.runtime.lastError.message);
+    } else {
+      // if we have an active site already and that active site url is different
+      // than the new tab's url, we need to set the end time for the previous site
+      // and save the timing to local storage
+      if (
+        activeSite &&
+        getBaseUrl(newSite.url) !== getBaseUrl(activeSite.url)
+      ) {
+        saveToLocalStorage();
+        validateAndSetNewActiveSiteAndStartTime(newSite);
+      } else if (!activeSite) {
+        validateAndSetNewActiveSiteAndStartTime(newSite);
+      }
     }
   });
 }
@@ -59,10 +71,18 @@ function handleNewWindow(newWindowId) {
   } else if (newWindowId > 0) {
     // If we've brought a different window into focus, we should query for the currently selected
     //  tab in that new window and call our new site handler
-    chrome.tabs.getSelected(newWindowId, function(newTab) {
-      if (!newTab) return;
-      handleNewSite(newTab);
+    chrome.tabs.query({ active: true, currentWindow: true }, function(newTab) {
+      if (newTab.length === 1) {
+        handleNewSite(newTab[0]);
+      }
     });
+  }
+}
+
+function handleNewState(newState) {
+  if (newState !== "active") {
+    saveToLocalStorage();
+    clearActiveSiteAndStartTime();
   }
 }
 
