@@ -22,13 +22,13 @@ let listView = false;
 let searchTerm;
 let timeseriesFilter;
 
-// Display error message if there is no data
-if (!getItems().length) {
-  error.style.visibility = "visible";
-} else {
+// Set up the new tab page on first load
+if (getItems().length > 3) {
   drawView(getItems());
   createBlacklistDropdownElements(getBlacklist());
   createTimeseriesFilterDropdown();
+} else {
+  error.style.visibility = "visible";
 }
 
 timeseriesFilterDropdown.addEventListener("change", e => {
@@ -136,15 +136,14 @@ function getTiming(timeseriesData, filter) {
   let timestamps = timeseriesData[1];
   let now = Date.now();
   const getTotalTime = (total, timing) => total + timing;
-  console.log("timeseriesData", timeseriesData, filter);
   switch (filter) {
     case "day":
       return timings
-        .filter((x, idx) => timestamps[idx] > now - MS_IN_DAY)
+        .filter((x, idx) => timestamps[idx] >= now - MS_IN_DAY)
         .reduce(getTotalTime, 0);
     case "week":
       return timings
-        .filter((x, idx) => timestamps[idx] > now - MS_IN_WEEK)
+        .filter((x, idx) => timestamps[idx] >= now - MS_IN_WEEK)
         .reduce(getTotalTime, 0);
     case "alltime":
     default:
@@ -366,17 +365,17 @@ function createBlacklistDropdownElements(sites) {
 function downloadCSV() {
   let csvContent = "data:text/csv;charset=utf-8,";
   let sites = JSON.parse(localStorage.getItem("populate"));
-  let pairs = ["Site, Time Spent (ms)"];
-
-  // console.log(getTiming(sites, "alltime"));
+  let csvData = ["Site, Past 24hrs/ms, Past 7 days/ms, All Time/ms"];
 
   Object.keys(sites)
     .filter(key => !key.startsWith("_"))
-    .forEach(site => getTiming(sites[site], "alltime"));
-  // .forEach(site => {
-  //   console.log("site", site);
-  //   // pairs.push(site + "," + sites[site]);
-  // });
+    .forEach(site => {
+      let allTime = getTiming(sites[site], "alltime");
+      let day = getTiming(sites[site], "day");
+      let week = getTiming(sites[site], "week");
+      csvData.push(`${site},${day},${week},${allTime}`);
+    });
+
   csvContent += pairs.join("\n");
-  // window.open(encodeURI(csvContent));
+  window.open(encodeURI(csvContent));
 }
