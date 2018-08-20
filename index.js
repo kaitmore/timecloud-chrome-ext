@@ -379,7 +379,7 @@ function downloadCSV() {
   let csvData = ["Site, Past 24hrs/ms, Past 7 days/ms, All Time/ms"];
 
   Object.keys(sites)
-    .filter(key => !key.startsWith("_"))
+    .filter(key => !key.startsWith("_") && key !== "null")
     .forEach(site => {
       let allTime = getTiming(sites[site], "alltime");
       let day = getTiming(sites[site], "day");
