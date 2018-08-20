@@ -387,6 +387,6 @@ function downloadCSV() {
       csvData.push(`${site},${day},${week},${allTime}`);
     });
 
-  csvContent += pairs.join("\n");
+  csvContent += csvData.join("\n");
   window.open(encodeURI(csvContent));
 }
