@@ -42,7 +42,7 @@ function handleNewSite(incomingSite) {
   // since `newTab` only gives us a tab & window id
   chrome.tabs.get(incomingSiteId, function(newSite) {
     if (chrome.runtime.lastError) {
-      console.warning(chrome.runtime.lastError.message);
+      console.log(chrome.runtime.lastError.message);
     } else {
       // if we have an active site already and that active site url is different
       // than the new tab's url, we need to set the end time for the previous site
@@ -113,10 +113,10 @@ function validateNewSite(newSite) {
 }
 
 function saveToLocalStorage() {
-  // chrome.tabs.captureVisibleTab(null, {}, function(image) {
-  //   console.log(image);
-  //   // You can add that image HTML5 canvas, or Element.
-  // });
+  chrome.tabs.captureVisibleTab(null, {}, function(image) {
+    console.log(image);
+    // You can add that image HTML5 canvas, or Element.
+  });
   const activeSiteUrl = getBaseUrl(activeSite.url);
   let endTime = Date.now();
   let currentState = JSON.parse(localStorage.getItem("populate"));
