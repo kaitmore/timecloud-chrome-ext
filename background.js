@@ -113,7 +113,9 @@ function validateNewSite(newSite) {
 }
 
 function saveToLocalStorage() {
-  chrome.tabs.captureVisibleTab(null, {}, function(image) {
+  chrome.tabs.captureVisibleTab(null, { format: "jpeg", quality: 5 }, function(
+    image
+  ) {
     console.log(image);
     // You can add that image HTML5 canvas, or Element.
   });
