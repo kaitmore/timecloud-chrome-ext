@@ -13,9 +13,6 @@
       background: -webkit-linear-gradient(-45deg, rgba(26, 51, 73, 1) 0%, rgba(15, 24, 43, 1) 100%);
       margin: 0;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
       font-size: 18px;
       overflow: hidden;
     }
@@ -60,17 +57,11 @@
     }
 
     #left-controls {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 10px;
       display: flex;
+      padding: 10px;
     }
 
     #right-controls {
-      position: absolute;
-      top: 0;
-      right: 0;
       padding: 10px;
     }
 
@@ -91,11 +82,11 @@
 
     #tooltip {
       position: absolute;
-      text-align: center;
+      text-align: left;
       padding: 6px;
       font: 18px sans-serif;
       font-weight: bold;
-      background: lightyellow;
+      background: white;
       border: 0px;
       border-radius: 8px;
       pointer-events: none;
@@ -103,20 +94,15 @@
 
     #list-view-container {
       color: white;
-      min-height: 300px;
       margin: 84px 200px;
       padding: 0 10px;
       overflow: scroll;
       display: none;
+      flex: 1 0;
     }
 
     #search {
       display: none;
-    }
-
-    #viz-wrapper {
-      width: 100vw;
-      height: 100vh;
     }
 
     #reset {
@@ -225,45 +211,67 @@
       margin: 10px;
       height: 45px;
     }
+
+    #main-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 0 0 100%;
+      height: 100%;
+    }
+
+    #menu {
+      display: flex;
+      justify-content: space-between;
+      min-height: 84px;
+      flex: 0 0 auto;
+    }
   </style>
 </head>
 
 <body>
+  <div id="main-content">
 
+    <div id="menu">
 
-  <div id="left-controls">
-    <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
-    <button id="list-view-button" class="btn btn-info">List</button>
-    <div class="bg">
-      <select id="sort">
-      </select>
-    </div>
-    <div id="search">
-      <span class="glyphicon glyphicon-search" id="search-icon"></span>
-      <input type="text" id="search-input">
-      </input>
-      <button id="reset" class="btn btn-danger">Reset</button>
-    </div>
-  </div>
+      <div id="left-controls">
+        <div>
 
-  <div id="right-controls">
-    <div class="dropdown">
-      <button id="dropbtn" class="btn btn-danger">Blacklist</button>
-      <button id="download-button" class="btn btn-warning">Download</button>
-      <div id="dropdown-container" class="dropdown-content" tabindex="1">
-        <input type="text" placeholder="Add site to blacklist" id="blacklist-input">
-        <div id="blacklist-content">
+          <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
+          <button id="list-view-button" class="btn btn-info">List</button>
+        </div>
+        <div class="bg">
+          <select id="sort">
+          </select>
+        </div>
+        <div id="search">
+          <span class="glyphicon glyphicon-search" id="search-icon"></span>
+          <input type="text" id="search-input" autocomplete="off">
+          </input>
+          <button id="reset" class="btn btn-danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="right-controls">
+        <div class="dropdown">
+          <button id="dropbtn" class="btn btn-danger">Blacklist</button>
+          <button id="download-button" class="btn btn-warning">Download</button>
+          <div id="dropdown-container" class="dropdown-content" tabindex="1">
+            <input type="text" placeholder="Add site to blacklist" id="blacklist-input">
+            <div id="blacklist-content">
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <div id="list-view-container">
+      <ul id="list-view-list">
+      </ul>
+    </div>
+    <div id='error'>Start surfin' to see results 🏄‍</div>
   </div>
 
-  <div id="list-view-container">
-    <ul id="list-view-list">
-    </ul>
-  </div>
-
-  <div id='error'>Start surfin' to see results 🏄‍</div>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3-scale/1.0.7/d3-scale.min.js"></script>
