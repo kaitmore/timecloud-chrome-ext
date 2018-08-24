@@ -138,7 +138,6 @@ function getItems() {
 }
 
 function getTiming(timeseriesData, filter) {
-  console.log(timeseriesData, filter);
   let timings = timeseriesData[0];
   let timestamps = timeseriesData[1];
   let now = Date.now();
@@ -261,8 +260,6 @@ function renderGraphView(items) {
     )
     .on("tick", ticked);
 
-  d3.select("svg").append("defs");
-
   function ticked() {
     const circles = d3
       .select("svg")
@@ -279,6 +276,8 @@ function renderGraphView(items) {
       .enter()
       .append("a")
       .append("circle")
+      .attr("stroke", "white")
+      .attr("stroke-width", 2)
       .merge(circles)
       .merge(links)
       .attr("fill", d => color(d.time))
@@ -286,14 +285,12 @@ function renderGraphView(items) {
       .attr("r", d => d.radius)
       .attr("cx", d => Math.max(d.radius, Math.min(width - d.radius, d.x)))
       .attr("cy", d => Math.max(d.radius, Math.min(height - d.radius, d.y)))
-      .style("stroke", "white")
-      .style("cursor", "pointer")
-      .style("stroke-width", 2);
+      .style("cursor", "pointer");
 
     circles.on("mouseover", function(d) {
       // highlight circle on mouseover
       const circle = d3.select(this);
-      circle.style("stroke-width", 4);
+      circle.attr("stroke-width", 4);
 
       tooltip
         .html(
@@ -315,7 +312,7 @@ function renderGraphView(items) {
       tooltip.style("visibility", "hidden");
       // select circle and remove highlighted border
       const circle = d3.select(this);
-      circle.style("stroke-width", 2);
+      circle.attr("stroke-width", 1);
     });
 
     circles.exit().remove();
@@ -348,7 +345,6 @@ function renderGraphView(items) {
 }
 
 function createTimeseriesFilterDropdown() {
-  console.log("this is run");
   let currentState = JSON.parse(localStorage.getItem("populate"));
   timeseriesFilter = currentState._settings.timeseriesFilter;
 
