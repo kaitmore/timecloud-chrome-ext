@@ -28,13 +28,9 @@ let searchTerm;
 let timeseriesFilter;
 
 // Set up the new tab page on first load
-if (getItems().length > 3) {
-  createTimeseriesFilterDropdown();
-  createBlacklistDropdownElements(getBlacklist());
-  drawView(getItems());
-} else {
-  error.style.display = "block";
-}
+createTimeseriesFilterDropdown();
+createBlacklistDropdownElements(getBlacklist());
+drawView(getItems());
 
 timeseriesFilterDropdown.addEventListener("change", e => {
   timeseriesFilter = e.target.value;
@@ -71,6 +67,7 @@ listViewButton.addEventListener("click", e => {
 graphViewButton.addEventListener("click", e => {
   // Clean up DOM
   listView = false;
+  searchInput.value = "";
   search.classList.toggle("show");
   listViewContainer.classList.toggle("show");
   graphViewButton.setAttribute("disabled", true);
@@ -121,7 +118,6 @@ function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
   let items = Object.keys(storedSites)
     .filter(site => !site.startsWith("_") && site !== "null")
-    .slice(0, 100)
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
       return {
@@ -162,7 +158,9 @@ function getBlacklist() {
 }
 
 function drawView(items) {
-  if (listView) {
+  if (items.length < 4) {
+    error.style.classList.toggle("show");
+  } else if (listView) {
     renderListView(items);
   } else {
     renderGraphView(items);
@@ -176,8 +174,7 @@ function renderListView(items) {
   searchTerm = searchInput.value !== "" ? searchInput.value : "all";
   let listViewTitle = document.createElement("li");
   listViewTitle.id = "list-view-title";
-  listViewTitle.innerHTML =
-    "Time Spent in Category: " + searchTerm + "<span>Visit Count</span>";
+  listViewTitle.innerHTML = "Time Spent: " + searchTerm;
   listViewList.appendChild(listViewTitle);
   // loop through each sorted item and append to DOM
   items.forEach(site => {
@@ -249,13 +246,14 @@ function renderGraphView(items) {
 
   const color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-  d3.forceSimulation(newScaledData)
+  const simulation = d3
+    .forceSimulation(newScaledData)
     .force("charge", d3.forceManyBody().strength(3))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force(
       "collision",
       d3.forceCollide().radius(function(d) {
-        return d.radius + 10;
+        return d.radius + 5;
       })
     )
     .on("tick", ticked);
@@ -312,7 +310,7 @@ function renderGraphView(items) {
       tooltip.style("visibility", "hidden");
       // select circle and remove highlighted border
       const circle = d3.select(this);
-      circle.attr("stroke-width", 1);
+      circle.attr("stroke-width", 2);
     });
 
     circles.exit().remove();
