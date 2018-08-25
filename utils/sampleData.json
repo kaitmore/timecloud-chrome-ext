@@ -1,0 +1,26 @@
+{
+  "_blacklist": [
+    "chrome://",
+    "about:blank",
+    "chrome-extension://",
+    "localhost",
+    "chrome-devtools",
+    "mailto:",
+    "file://"
+  ],
+  "_settings": {
+    "timeseriesFilter": "day"
+  },
+  "https://stackoverflow.com": [[200070, 1000], [1534478400000, 1534699355978]],
+  "http://bl.ocks.org": [[307000, 1500], [1534499100000, 1534699355978]],
+  "https://google.com": [[35000, 100], [1534509923000, 1534699355978]],
+  "https://currentmillis.com": [[10050, 3500], [1534513523000, 1534699355978]],
+  "https://github.com": [[2800, 35500], [1534513523000, 1534699355978]],
+  "https://w3schools.com": [[3307700, 5100], [1534513523000, 1534699355978]],
+  "https://dashingd3js.com": [[8972309, 9800], [1534513523000, 1534699355978]],
+  "https://developer.mozilla.org": [
+    [965, 8888],
+    [1534513523000, 1534699355978]
+  ],
+  "https://chromestatus.com": [[1231, 4466644], [1534513523000, 1534699355978]]
+}

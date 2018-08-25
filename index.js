@@ -1,4 +1,8 @@
+const MS_IN_DAY = 8.64e7;
+const MS_IN_WEEK = 6.048e8;
+
 const body = document.querySelector("body");
+const mainContent = document.getElementById("main-content");
 const resetButton = document.getElementById("reset");
 const graphViewButton = document.getElementById("graph-view-button");
 const listViewButton = document.getElementById("list-view-button");
@@ -11,17 +15,30 @@ const blacklistButton = document.getElementById("dropbtn");
 const blacklistInput = document.getElementById("blacklist-input");
 const blacklistContainer = document.getElementById("dropdown-container");
 const blacklistContent = document.getElementById("blacklist-content");
+const timeseriesFilterDropdown = document.getElementById("sort");
+
+const timeSeriesFilters = {
+  alltime: "All Time",
+  day: "24 Hours",
+  week: "7 Days"
+};
 let searchInput = document.getElementById("search-input");
 let listView = false;
 let searchTerm;
+let timeseriesFilter;
 
-// Display error message if there is no data
-if (!getItems().length) {
-  error.style.visibility = "visible";
-} else {
+// Set up the new tab page on first load
+createTimeseriesFilterDropdown();
+createBlacklistDropdownElements(getBlacklist());
+drawView(getItems());
+
+timeseriesFilterDropdown.addEventListener("change", e => {
+  timeseriesFilter = e.target.value;
   drawView(getItems());
-  createBlacklistDropdownElements(getBlacklist());
-}
+  let currentState = JSON.parse(localStorage.getItem("populate"));
+  currentState._settings.timeseriesFilter = timeseriesFilter;
+  localStorage.setItem("populate", JSON.stringify(currentState));
+});
 
 searchInput.addEventListener("input", e => {
   e.preventDefault();
@@ -41,7 +58,7 @@ listViewButton.addEventListener("click", e => {
   listView = true;
   search.classList.toggle("show");
   listViewContainer.classList.toggle("show");
-  body.removeChild(document.querySelector("svg"));
+  mainContent.removeChild(document.querySelector("svg"));
   listViewButton.setAttribute("disabled", true);
   graphViewButton.removeAttribute("disabled");
   drawView(getItems());
@@ -50,6 +67,7 @@ listViewButton.addEventListener("click", e => {
 graphViewButton.addEventListener("click", e => {
   // Clean up DOM
   listView = false;
+  searchInput.value = "";
   search.classList.toggle("show");
   listViewContainer.classList.toggle("show");
   graphViewButton.setAttribute("disabled", true);
@@ -91,21 +109,23 @@ blacklistInput.addEventListener("keyup", e => {
 
 // Listeners to show/hide blacklist dropdown
 blacklistButton.addEventListener("click", toggleBlacklistDropdown);
-blacklistButton.addEventListener("blur", toggleBlacklistDropdown);
 
-function toggleBlacklistDropdown() {
+function toggleBlacklistDropdown(e) {
   blacklistContainer.classList.toggle("show");
 }
 
 function getItems() {
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
   let items = Object.keys(storedSites)
-    .filter(key => !key.startsWith("_") && key !== "null")
-    .slice(0, 100)
+    .filter(site => !site.startsWith("_") && site !== "null")
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
-      return { url: site, time: storedSites[site] };
+      return {
+        url: site,
+        time: getTiming(storedSites[site], timeseriesFilter)
+      };
     })
+    .filter(site => site.time) // filter out 0 timings
     .sort((a, b) => {
       return a.time > b.time ? -1 : 1;
     });
@@ -113,12 +133,34 @@ function getItems() {
   return items;
 }
 
+function getTiming(timeseriesData, filter) {
+  let timings = timeseriesData[0];
+  let timestamps = timeseriesData[1];
+  let now = Date.now();
+  const getTotalTime = (total, timing) => total + timing;
+  switch (filter) {
+    case "day":
+      return timings
+        .filter((x, idx) => timestamps[idx] >= now - MS_IN_DAY)
+        .reduce(getTotalTime, 0);
+    case "week":
+      return timings
+        .filter((x, idx) => timestamps[idx] >= now - MS_IN_WEEK)
+        .reduce(getTotalTime, 0);
+    case "alltime":
+    default:
+      return timings.reduce(getTotalTime, 0);
+  }
+}
+
 function getBlacklist() {
   return JSON.parse(localStorage.getItem("populate"))._blacklist;
 }
 
 function drawView(items) {
-  if (listView) {
+  if (items.length < 4) {
+    error.style.classList.toggle("show");
+  } else if (listView) {
     renderListView(items);
   } else {
     renderGraphView(items);
@@ -132,8 +174,7 @@ function renderListView(items) {
   searchTerm = searchInput.value !== "" ? searchInput.value : "all";
   let listViewTitle = document.createElement("li");
   listViewTitle.id = "list-view-title";
-  listViewTitle.innerHTML =
-    "Time Spent in Category: " + searchTerm + "<span>Visit Count</span>";
+  listViewTitle.innerHTML = "Time Spent: " + searchTerm;
   listViewList.appendChild(listViewTitle);
   // loop through each sorted item and append to DOM
   items.forEach(site => {
@@ -154,20 +195,22 @@ function renderListView(items) {
 
 function renderGraphView(items) {
   // Clean up DOM
-  error.style.visibility = "hidden";
+  error.style.display = "none";
   d3.selectAll("svg").remove();
   d3.selectAll("#tooltip").remove();
 
   const height = window.innerHeight;
   const width = window.innerWidth;
+
   // Create the canvas
-  d3.select("body")
+  d3.select("#main-content")
     .append("svg")
     .attr("height", height)
-    .attr("width", width);
+    .attr("width", width)
+    .style("margin-top", "-84px");
 
   const tooltip = d3
-    .select("body")
+    .select("#main-content")
     .append("div")
     .attr("id", "tooltip")
     .style("opacity", 0);
@@ -197,15 +240,20 @@ function renderGraphView(items) {
     radius: linearScale(node.time)
   }));
 
+  const totalTimeSpent = newScaledData.reduce((total, curr) => {
+    return total + curr.time;
+  }, 0);
+
   const color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-  d3.forceSimulation(newScaledData)
+  const simulation = d3
+    .forceSimulation(newScaledData)
     .force("charge", d3.forceManyBody().strength(3))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force(
       "collision",
       d3.forceCollide().radius(function(d) {
-        return d.radius + 10;
+        return d.radius + 5;
       })
     )
     .on("tick", ticked);
@@ -226,30 +274,31 @@ function renderGraphView(items) {
       .enter()
       .append("a")
       .append("circle")
+      .attr("stroke", "white")
+      .attr("stroke-width", 2)
       .merge(circles)
       .merge(links)
       .attr("fill", d => color(d.time))
       .attr("index", d => d.index)
       .attr("r", d => d.radius)
-      .attr(
-        "cx",
-        d => (d.x = Math.max(d.radius, Math.min(width - d.radius, d.x)))
-      )
-      .attr(
-        "cy",
-        d => (d.y = Math.max(d.radius, Math.min(height - d.radius, d.y)))
-      )
-      .style("stroke", "white")
-      .style("cursor", "pointer")
-      .style("stroke-width", 2);
+      .attr("cx", d => Math.max(d.radius, Math.min(width - d.radius, d.x)))
+      .attr("cy", d => Math.max(d.radius, Math.min(height - d.radius, d.y)))
+      .style("cursor", "pointer");
 
     circles.on("mouseover", function(d) {
       // highlight circle on mouseover
       const circle = d3.select(this);
-      circle.style("stroke-width", 4);
+      circle.attr("stroke-width", 4);
 
       tooltip
-        .html(d.url + "<br/> - <br/>Time Spent: " + msToMinAndSec(d.time))
+        .html(
+          d.url +
+            "<br/> - <br/>Time Spent: " +
+            msToMinAndSec(d.time) +
+            " <br/> Percentage: " +
+            ((d.time * 100) / totalTimeSpent).toFixed(2) +
+            "%"
+        )
         .style("left", d3.event.pageX + "px")
         .style("top", d3.event.pageY + "px")
         .style("opacity", 0.9)
@@ -261,7 +310,7 @@ function renderGraphView(items) {
       tooltip.style("visibility", "hidden");
       // select circle and remove highlighted border
       const circle = d3.select(this);
-      circle.style("stroke-width", 2);
+      circle.attr("stroke-width", 2);
     });
 
     circles.exit().remove();
@@ -293,6 +342,21 @@ function renderGraphView(items) {
   });
 }
 
+function createTimeseriesFilterDropdown() {
+  let currentState = JSON.parse(localStorage.getItem("populate"));
+  timeseriesFilter = currentState._settings.timeseriesFilter;
+
+  Object.keys(timeSeriesFilters).forEach(filter => {
+    let option = document.createElement("option");
+    option.value = filter;
+    option.innerText = timeSeriesFilters[filter];
+    if (filter === timeseriesFilter) {
+      option.setAttribute("selected", true);
+    }
+    timeseriesFilterDropdown.appendChild(option);
+  });
+}
+
 function createBlacklistDropdownElements(sites) {
   sites.forEach(site => {
     let div = document.createElement("div");
@@ -312,10 +376,17 @@ function createBlacklistDropdownElements(sites) {
 function downloadCSV() {
   let csvContent = "data:text/csv;charset=utf-8,";
   let sites = JSON.parse(localStorage.getItem("populate"));
-  let pairs = ["Site, Time Spent (ms)"];
+  let csvData = ["Site, Past 24hrs/ms, Past 7 days/ms, All Time/ms"];
+
   Object.keys(sites)
-    .filter(key => !key.startsWith("_"))
-    .forEach(site => pairs.push(site + "," + sites[site]));
-  csvContent += pairs.join("\n");
+    .filter(key => !key.startsWith("_") && key !== "null")
+    .forEach(site => {
+      let allTime = getTiming(sites[site], "alltime");
+      let day = getTiming(sites[site], "day");
+      let week = getTiming(sites[site], "week");
+      csvData.push(`${site},${day},${week},${allTime}`);
+    });
+
+  csvContent += csvData.join("\n");
   window.open(encodeURI(csvContent));
 }

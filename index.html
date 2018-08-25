@@ -13,9 +13,6 @@
       background: -webkit-linear-gradient(-45deg, rgba(26, 51, 73, 1) 0%, rgba(15, 24, 43, 1) 100%);
       margin: 0;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
       font-size: 18px;
       overflow: hidden;
     }
@@ -60,16 +57,11 @@
     }
 
     #left-controls {
-      position: absolute;
-      top: 0;
-      left: 0;
+      display: flex;
       padding: 10px;
     }
 
     #right-controls {
-      position: absolute;
-      top: 0;
-      right: 0;
       padding: 10px;
     }
 
@@ -78,6 +70,7 @@
       margin: 10px;
       font-weight: bold;
       letter-spacing: 1px;
+      border: none;
     }
 
     #search-icon {
@@ -89,11 +82,11 @@
 
     #tooltip {
       position: absolute;
-      text-align: center;
+      text-align: left;
       padding: 6px;
       font: 18px sans-serif;
       font-weight: bold;
-      background: lightyellow;
+      background: white;
       border: 0px;
       border-radius: 8px;
       pointer-events: none;
@@ -101,20 +94,15 @@
 
     #list-view-container {
       color: white;
-      min-height: 300px;
       margin: 84px 200px;
       padding: 0 10px;
       overflow: scroll;
       display: none;
+      flex: 1 0;
     }
 
     #search {
       display: none;
-    }
-
-    #viz-wrapper {
-      width: 100vw;
-      height: 100vh;
     }
 
     #reset {
@@ -126,12 +114,7 @@
     }
 
     #error {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      position: fixed;
-      align-items: center;
-      justify-content: center;
+      margin: auto;
       color: white;
       font-size: 36px;
     }
@@ -139,9 +122,6 @@
     /* Dropdown Button */
 
     .dropbtn {
-      background: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24' fill ='#6db76c' ><path fill='#fff' d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>");
-      background-position: 100% 55%;
-      background-repeat: no-repeat;
       color: white;
       padding: 16px;
       font-size: 16px;
@@ -176,7 +156,6 @@
       width: 265px;
       border: 1px solid #ddd;
       z-index: 1;
-      height: 40vh;
       overflow: scroll;
       margin: 10px;
     }
@@ -203,44 +182,94 @@
       color: red;
       font-size: 18px;
     }
+
+    select {
+      -webkit-appearance: none;
+      background: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24' ><path fill='white'  d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>");
+      background-position: 108% 58%;
+      background-repeat: no-repeat;
+      border-radius: 0;
+      font-weight: bold;
+      font-size: 18px;
+      letter-spacing: 1px;
+      border: none;
+      height: 47px;
+      width: 100px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .bg {
+      display: inline-block;
+      background: #6db76c;
+      padding: 0 15px;
+      margin: 10px;
+      height: 45px;
+    }
+
+    #main-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 0 0 100%;
+      height: 100%;
+    }
+
+    #menu {
+      display: flex;
+      justify-content: space-between;
+      min-height: 84px;
+      flex: 0 0 auto;
+    }
   </style>
 </head>
 
 <body>
+  <div id="main-content">
 
+    <div id="menu">
 
-  <div id="left-controls">
-    <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
-    <button id="list-view-button" class="btn btn-info">List</button>
-    <div id="search">
-      <span class="glyphicon glyphicon-search" id="search-icon"></span>
-      <input type="text" id="search-input">
-      </input>
-      <button id="reset" class="btn btn-danger">Reset</button>
-    </div>
-  </div>
+      <div id="left-controls">
+        <div>
 
-  <div id="right-controls">
-    <div class="dropdown">
-      <button id="dropbtn" class="btn btn-danger">Blacklist</button>
-      <button id="download-button" class="btn btn-warning">Download</button>
-      <div id="dropdown-container" class="dropdown-content">
-        <input type="text" placeholder="Add site to blacklist" id="blacklist-input">
-        <div id="blacklist-content">
+          <button id="graph-view-button" class="btn btn-primary" disabled="true">Graph</button>
+          <button id="list-view-button" class="btn btn-info">List</button>
+        </div>
+        <div class="bg">
+          <select id="sort">
+          </select>
+        </div>
+        <div id="search">
+          <span class="glyphicon glyphicon-search" id="search-icon"></span>
+          <input type="text" id="search-input" autocomplete="off">
+          </input>
+          <button id="reset" class="btn btn-danger">Reset</button>
+        </div>
+      </div>
+
+      <div id="right-controls">
+        <div class="dropdown">
+          <button id="dropbtn" class="btn btn-danger">Blacklist</button>
+          <button id="download-button" class="btn btn-warning">Download</button>
+          <div id="dropdown-container" class="dropdown-content" tabindex="1">
+            <input type="text" placeholder="Add site to blacklist" id="blacklist-input">
+            <div id="blacklist-content">
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <div id="list-view-container">
+      <ul id="list-view-list">
+      </ul>
+    </div>
+    <div id='error'>☁️ ⏰ Visit a few more sites to see your time cloud ⏰☁️</div>
   </div>
 
-  <div id="list-view-container">
-    <ul id="list-view-list">
-    </ul>
-  </div>
-
-  <div id='error'>Start surfin' to see results 🏄‍</div>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js "></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js "></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3-scale/1.0.7/d3-scale.min.js "></script>
-  <script defer src="helpers.js "></script>
-  <script defer src="index.js "></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3-scale/1.0.7/d3-scale.min.js"></script>
+  <script defer src="helpers.js"></script>
+  <script defer src="index.js"></script>
 </body>
