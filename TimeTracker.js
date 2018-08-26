@@ -1,3 +1,13 @@
+/**
+ *
+ * The TimeTracker class listens for chrome events. It is
+ * responsible for tracking the currently active site and updating
+ * local storage with timings.
+ *
+ * @class TimeTracker
+ *
+ **/
+
 class TimeTracker {
   constructor() {
     this._activeSite = null;
@@ -106,12 +116,11 @@ class TimeTracker {
 
 new TimeTracker();
 
-/***
- **
- * HELPER FUNCTIONS
- **
- ***/
-
+/**
+ * Checks for the populate key in local storage.
+ * If it's not there, set it with initial state.
+ * @param {object} initialState
+ **/
 function checkForLocalStorage(initialState) {
   // Set initial state in localstorage
   if (!localStorage.getItem("populate")) {
@@ -119,6 +128,13 @@ function checkForLocalStorage(initialState) {
   }
 }
 
+/**
+ * Validates a site by first checking it's transition type, which indicates
+ * whether or not the user initiated the transiton, then check the site
+ * against the user's blacklist.
+ * @param {object} newSite
+ * @returns {boolean}
+ */
 function validateNewSite(newSite) {
   if (!newSite) return false;
   if (newSite.transitionType) {
@@ -142,28 +158,41 @@ function validateNewSite(newSite) {
   return isSiteValid;
 }
 
-function saveToLocalStorage(activeSite, startTime) {
-  const activeSiteUrl = getBaseUrl(activeSite.url);
-  let endTime = Date.now();
+/**
+ * Takes a site and a start time, calculates the new timing, and
+ * updates that site's local storage entry.
+ * @param {object} activeSite
+ * @param {number} startTime
+ */
+function saveToLocalStorage(site, startTime) {
+  const url = getBaseUrl(site.url);
+  const endTime = Date.now();
+  const newTiming = endTime - startTime;
   let currentState = JSON.parse(localStorage.getItem("populate"));
-  let newTiming = endTime - startTime;
-  let localStorageVal = currentState[activeSiteUrl];
+  const localStorageVal = currentState[url];
   if (localStorageVal) {
-    let previousTimings = localStorageVal[0];
-    let previousTimestamps = localStorageVal[1];
-    currentState[activeSiteUrl] = [
+    const previousTimings = localStorageVal[0];
+    const previousTimestamps = localStorageVal[1];
+    currentState[url] = [
       [newTiming, ...previousTimings],
       [endTime, ...previousTimestamps]
     ];
   } else {
-    currentState[activeSiteUrl] = [[newTiming], [endTime]];
+    currentState[url] = [[newTiming], [endTime]];
   }
   localStorage.setItem("populate", JSON.stringify(currentState));
 }
 
+/**
+ * A utility function that takes a url and creates a temporary element
+ * in the DOM for the purpose of extracting a clean base url using the
+ * `origin` property. It also strips out `www` using regex.
+ * @param {string} url
+ * @returns {string}
+ */
 function getBaseUrl(url) {
-  var temp = document.createElement("a");
+  let temp = document.createElement("a");
   temp.href = url;
-  let baseUrl = temp.origin.replace(/[https*:\\]*www./, "");
+  let baseUrl = temp.origin.replace(/www.(?!^https?:\/\/)/, ""); // https://regexr.com/3ufss
   return baseUrl;
 }
