@@ -161,7 +161,7 @@ function drawView(nodes) {
   // If there are too few nodes and it's not because a
   // search term is filtering them, show the error message
   if (nodes.length < 4 && !searchTerm) {
-    error.style.classList.toggle("show");
+    error.classList.toggle("show");
   } else if (listView) {
     renderListView(nodes);
   } else {
@@ -174,7 +174,7 @@ function drawView(nodes) {
  * the user's prefered filter from local storage
  */
 function createTimeseriesFilterDropdown(settings) {
-  timeseriesFilter = settings.timeseriesFilter;
+  timeseriesFilter = settings.timeseriesFilter || "alltime";
   Object.keys(timeSeriesFilters).forEach(filter => {
     let option = document.createElement("option");
     option.value = filter;

@@ -1,3 +1,22 @@
+let initialState = {
+  _blacklist: [
+    "chrome://",
+    "about:blank",
+    "chrome-extension://",
+    "localhost",
+    "chrome-devtools",
+    "mailto:",
+    "file://"
+  ],
+  _settings: {
+    timeseriesFilter: "alltime"
+  }
+};
+
+if (!localStorage.getItem("populate")) {
+  localStorage.setItem("populate", JSON.stringify(initialState));
+}
+
 // Set up the new tab page on first load
 createTimeseriesFilterDropdown(getSettings());
 createBlacklistDropdownElements(getBlacklist());
