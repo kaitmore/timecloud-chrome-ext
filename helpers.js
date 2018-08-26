@@ -41,7 +41,6 @@ function getTiming(timeseriesData, filter) {
 }
 
 function getItems() {
-  console.log(timeseriesFilter);
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
   let items = Object.keys(storedSites)
     .filter(site => !site.startsWith("_") && site !== "null")
