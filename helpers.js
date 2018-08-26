@@ -16,6 +16,10 @@ function getBlacklist() {
   return JSON.parse(localStorage.getItem("populate"))._blacklist;
 }
 
+function getSettings() {
+  return JSON.parse(localStorage.getItem("populate"))._settings;
+}
+
 function getTiming(timeseriesData, filter) {
   let timings = timeseriesData[0];
   let timestamps = timeseriesData[1];
@@ -37,6 +41,7 @@ function getTiming(timeseriesData, filter) {
 }
 
 function getItems() {
+  console.log(timeseriesFilter);
   let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
   let items = Object.keys(storedSites)
     .filter(site => !site.startsWith("_") && site !== "null")

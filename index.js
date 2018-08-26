@@ -1,5 +1,5 @@
 // Set up the new tab page on first load
-createTimeseriesFilterDropdown();
+createTimeseriesFilterDropdown(getSettings());
 createBlacklistDropdownElements(getBlacklist());
 drawView(getItems());
 

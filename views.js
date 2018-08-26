@@ -1,14 +1,21 @@
-function renderListView(items) {
+/**
+ * Renders the list view elements by looping through the nodes
+ * array and appending list items to the list view container
+ * @param {Array.<{url: String, time:Number>} nodes
+ */
+function renderListView(nodes) {
   // Clear out any previous list elements
   listViewList.innerHTML = "";
+
   // Set up the DOM
   searchTerm = searchInput.value !== "" ? searchInput.value : "all";
   let listViewTitle = document.createElement("li");
   listViewTitle.id = "list-view-title";
   listViewTitle.innerHTML = "Time Spent: " + searchTerm;
   listViewList.appendChild(listViewTitle);
-  // loop through each sorted item and append to DOM
-  items.forEach(site => {
+
+  // Loop through each sorted item and append to DOM
+  nodes.forEach(site => {
     const item = document.createElement("li");
 
     const link = document.createElement("a");
@@ -24,6 +31,10 @@ function renderListView(items) {
   });
 }
 
+/**
+ * Creates the d3 force simulation and handles mouse events for the svgs
+ * @param {Array.<{url: String, time:Number>} nodes
+ */
 function renderGraphView(nodes) {
   // Clean up DOM
   error.style.display = "none";
@@ -141,46 +152,29 @@ function renderGraphView(nodes) {
   }
 }
 
-function renderListView(items) {
-  // Clear out any previous list elements
-  listViewList.innerHTML = "";
-  // Set up the DOM
-  searchTerm = searchInput.value !== "" ? searchInput.value : "all";
-  let listViewTitle = document.createElement("li");
-  listViewTitle.id = "list-view-title";
-  listViewTitle.innerHTML = "Time Spent: " + searchTerm;
-  listViewList.appendChild(listViewTitle);
-  // loop through each sorted item and append to DOM
-  items.forEach(site => {
-    const item = document.createElement("li");
-
-    const link = document.createElement("a");
-    link.href = site.url;
-    link.innerText = site.url;
-
-    const timing = document.createElement("span");
-    timing.innerText = msToMinAndSec(site.time);
-
-    item.appendChild(link);
-    item.appendChild(timing);
-    listViewList.appendChild(item);
-  });
-}
-
-function drawView(items) {
-  if (items.length < 4) {
+/**
+ * Renders the appropriate view based on the available nodes
+ * and the selected view type.
+ * @param {Array.<{url: String, time:Number>} nodes
+ */
+function drawView(nodes) {
+  // If there are too few nodes and it's not because a
+  // search term is filtering them, show the error message
+  if (nodes.length < 4 && !searchTerm) {
     error.style.classList.toggle("show");
   } else if (listView) {
-    renderListView(items);
+    renderListView(nodes);
   } else {
-    renderGraphView(items);
+    renderGraphView(nodes);
   }
 }
 
-function createTimeseriesFilterDropdown() {
-  let currentState = JSON.parse(localStorage.getItem("populate"));
-  timeseriesFilter = currentState._settings.timeseriesFilter;
-
+/**
+ * Generates the timeseries filter dropdown elements so that we can set
+ * the user's prefered filter from local storage
+ */
+function createTimeseriesFilterDropdown(settings) {
+  timeseriesFilter = settings.timeseriesFilter;
   Object.keys(timeSeriesFilters).forEach(filter => {
     let option = document.createElement("option");
     option.value = filter;
@@ -192,8 +186,12 @@ function createTimeseriesFilterDropdown() {
   });
 }
 
-function createBlacklistDropdownElements(sites) {
-  sites.forEach(site => {
+/**
+ * Generates the blacklist dropdown elements so that we can set
+ * the user's blacklisted sites from local storage
+ */
+function createBlacklistDropdownElements(blacklistedSites) {
+  blacklistedSites.forEach(site => {
     let div = document.createElement("div");
     div.className = "blacklist-item";
     div.id = site;

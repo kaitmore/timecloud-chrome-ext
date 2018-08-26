@@ -7,7 +7,6 @@
  * @class TimeTracker
  *
  **/
-
 class TimeTracker {
   constructor() {
     this._activeSite = null;
