@@ -1,6 +1,6 @@
 {
   "name": "TimeCloud",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "Kaitlin Moreno",
   "description": "A chrome extension that visualizes your time on the web",
   "permissions": [
