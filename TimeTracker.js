@@ -50,9 +50,16 @@ class TimeTracker {
     if (newSiteIsValid) {
       this._activeSite = newSite;
       this._startTime = Date.now();
+      chrome.browserAction.setBadgeText({
+        text: " "
+      });
+      chrome.browserAction.setBadgeBackgroundColor({ color: "limegreen" });
     } else {
       this._activeSite = null;
       this._startTime = null;
+      chrome.browserAction.setBadgeText({
+        text: ""
+      });
     }
   }
 
@@ -109,6 +116,12 @@ class TimeTracker {
     if (newState !== "active" && this.activeSite) {
       saveToLocalStorage(this.activeSite, this.startTime);
       this.activeSite = null;
+    } else if (newState === "active") {
+      chrome.tabs.query({ active: true, currentWindow: true }, newTab => {
+        if (newTab.length === 1) {
+          this.handleNewSite(newTab[0]);
+        }
+      });
     }
   }
 }
