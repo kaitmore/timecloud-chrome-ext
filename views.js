@@ -35,7 +35,7 @@ function renderListView(nodes) {
  * Creates the d3 force simulation and handles mouse events for the svgs
  * @param {Array.<{url: String, time:Number>} nodes
  */
-function renderGraphView(nodes) {
+function renderGraphView(nodes = []) {
   // Clean up DOM
   error.style.display = "none";
   d3.selectAll("svg").remove();

@@ -1,6 +1,18 @@
 const MS_IN_DAY = 8.64e7;
 const MS_IN_WEEK = 6.048e8;
 
+function fetchStorage() {
+  return new Promise(function(resolve, reject) {
+    chrome.storage.sync.get("timetracker", function(result) {
+      if (!result) {
+        reject();
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
 function msToMinAndSec(millis) {
   if (millis < 1000) {
     return `${millis} ms`;
@@ -12,12 +24,14 @@ function msToMinAndSec(millis) {
   return hours + minutes + seconds;
 }
 
-function getBlacklist() {
-  return JSON.parse(localStorage.getItem("populate"))._blacklist;
+async function getBlacklist() {
+  let { timetracker = {} } = await fetchStorage();
+  return timetracker._blacklist;
 }
 
-function getSettings() {
-  return JSON.parse(localStorage.getItem("populate"))._settings;
+async function getSettings() {
+  let { timetracker = {} } = await fetchStorage();
+  return timetracker._settings;
 }
 
 function getTiming(timeseriesData, filter) {
@@ -40,36 +54,34 @@ function getTiming(timeseriesData, filter) {
   }
 }
 
-function getItems() {
-  let storedSites = JSON.parse(localStorage.getItem("populate")) || {};
-  let items = Object.keys(storedSites)
+async function getItems() {
+  let { timetracker = {} } = await fetchStorage();
+  return Object.keys(timetracker)
     .filter(site => !site.startsWith("_") && site !== "null")
     .filter(site => site.includes(searchInput.value)) // filter out sites that don't match search term
     .map(site => {
       return {
         url: site,
-        time: getTiming(storedSites[site], timeseriesFilter)
+        time: getTiming(timetracker[site], timeseriesFilter)
       };
     })
     .filter(site => site.time) // filter out 0 timings
     .sort((a, b) => {
       return a.time > b.time ? -1 : 1;
     });
-
-  return items;
 }
 
-function downloadCSV() {
+async function downloadCSV() {
   let csvContent = "data:text/csv;charset=utf-8,";
-  let sites = JSON.parse(localStorage.getItem("populate"));
+  let { timetracker } = await fetchStorage();
   let csvData = ["Site, Past 24hrs/ms, Past 7 days/ms, All Time/ms"];
 
-  Object.keys(sites)
+  Object.keys(timetracker)
     .filter(key => !key.startsWith("_") && key !== "null")
     .forEach(site => {
-      let allTime = getTiming(sites[site], "alltime");
-      let day = getTiming(sites[site], "day");
-      let week = getTiming(sites[site], "week");
+      let allTime = getTiming(timetracker[site], "alltime");
+      let day = getTiming(timetracker[site], "day");
+      let week = getTiming(timetracker[site], "week");
       csvData.push(`${site},${day},${week},${allTime}`);
     });
 

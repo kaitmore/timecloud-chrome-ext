@@ -13,19 +13,20 @@ let initialState = {
   }
 };
 
-if (!localStorage.getItem("populate")) {
-  localStorage.setItem("populate", JSON.stringify(initialState));
-}
-
 // Set up the new tab page on first load
-createTimeseriesFilterDropdown(getSettings());
-createBlacklistDropdownElements(getBlacklist());
-drawView(getItems());
+(async function() {
+  let items = await getItems();
+  let settings = await getSettings();
+  let blacklist = await getBlacklist();
+  createTimeseriesFilterDropdown(settings);
+  createBlacklistDropdownElements(blacklist);
+  drawView(items);
+})();
 
 // redraw when tab is activated
 chrome.tabs.onActivated.addListener(function(x) {
-  chrome.tabs.get(x.tabId, function(active) {
-    let localStorageItems = getItems();
+  chrome.tabs.get(x.tabId, async function(active) {
+    let localStorageItems = await getItems();
     if (active.url.includes("chrome://") && localStorageItems.length) {
       drawView(localStorageItems);
     }
@@ -35,8 +36,8 @@ chrome.tabs.onActivated.addListener(function(x) {
 // redraw when window is focused
 chrome.windows.onFocusChanged.addListener(function(newWindowId) {
   if (newWindowId > 0) {
-    chrome.tabs.getSelected(newWindowId, function(active) {
-      let localStorageItems = getItems();
+    chrome.tabs.getSelected(newWindowId, async function(active) {
+      let localStorageItems = await getItems();
       if (active.url.includes("chrome://newtab") && localStorageItems.length) {
         drawView(localStorageItems);
       }

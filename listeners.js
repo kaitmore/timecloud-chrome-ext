@@ -24,28 +24,32 @@ let listView = false;
 let searchTerm;
 let timeseriesFilter;
 
-timeseriesFilterDropdown.addEventListener("change", e => {
+timeseriesFilterDropdown.addEventListener("change", async e => {
   timeseriesFilter = e.target.value;
-  drawView(getItems());
-  let currentState = JSON.parse(localStorage.getItem("populate"));
+  const items = await getItems();
+  drawView(items);
+  // Save the selection to the user's settings
+  let { timetracker: currentState } = await fetchStorage();
   currentState._settings.timeseriesFilter = timeseriesFilter;
-  localStorage.setItem("populate", JSON.stringify(currentState));
+  chrome.storage.sync.set({ timetracker: currentState });
 });
 
-searchInput.addEventListener("input", e => {
+searchInput.addEventListener("input", async e => {
   e.preventDefault();
   resetButton.style.display = "inline";
   searchTerm = searchInput.value;
-  drawView(getItems());
+  const items = await getItems();
+  drawView(items);
 });
 
-resetButton.addEventListener("click", e => {
+resetButton.addEventListener("click", async e => {
   resetButton.style.display = "none";
   searchInput.value = "";
-  drawView(getItems());
+  const items = await getItems();
+  drawView(items);
 });
 
-listViewButton.addEventListener("click", e => {
+listViewButton.addEventListener("click", async e => {
   // Clean up DOM
   listView = true;
   search.classList.toggle("show");
@@ -53,10 +57,11 @@ listViewButton.addEventListener("click", e => {
   mainContent.removeChild(document.querySelector("svg"));
   listViewButton.setAttribute("disabled", true);
   graphViewButton.removeAttribute("disabled");
-  drawView(getItems());
+  const items = await getItems();
+  drawView(items);
 });
 
-graphViewButton.addEventListener("click", e => {
+graphViewButton.addEventListener("click", async e => {
   // Clean up DOM
   listView = false;
   searchInput.value = "";
@@ -64,7 +69,8 @@ graphViewButton.addEventListener("click", e => {
   listViewContainer.classList.toggle("show");
   graphViewButton.setAttribute("disabled", true);
   listViewButton.removeAttribute("disabled");
-  drawView(getItems());
+  const items = await getItems();
+  drawView(items);
 });
 
 downloadButton.addEventListener("click", e => {
@@ -73,26 +79,26 @@ downloadButton.addEventListener("click", e => {
 });
 
 // Listener to remove items from the blacklist dropdown
-blacklistContent.addEventListener("click", function(e) {
+blacklistContent.addEventListener("click", async function(e) {
   if (e.target.classList.contains("blacklist-remove")) {
     let itemToRemove = document.getElementById(e.target.dataset.value);
     blacklistContent.removeChild(itemToRemove);
-    let currentState = JSON.parse(localStorage.getItem("populate"));
+    let { timetracker: currentState } = await fetchStorage();
     currentState._blacklist = currentState._blacklist.filter(
       site => site.trim() !== itemToRemove.id.trim()
     );
-    localStorage.setItem("populate", JSON.stringify(currentState));
+    chrome.storage.sync.set({ timetracker: currentState });
   }
 });
 
 // Listener for new blacklist site input, listen for enter key
-blacklistInput.addEventListener("keyup", e => {
+blacklistInput.addEventListener("keyup", async e => {
   if (event.keyCode === 13) {
     let newBlacklistSite = e.target.value.trim();
-    let currentState = JSON.parse(localStorage.getItem("populate"));
+    let { timetracker: currentState } = await fetchStorage();
     if (!currentState._blacklist.includes(newBlacklistSite)) {
       currentState._blacklist.push(newBlacklistSite);
-      localStorage.setItem("populate", JSON.stringify(currentState));
+      chrome.storage.sync.set({ timetracker: currentState });
       createBlacklistDropdownElements([newBlacklistSite]);
     }
     blacklistInput.value = "";

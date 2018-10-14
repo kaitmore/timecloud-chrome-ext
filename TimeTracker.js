@@ -134,10 +134,13 @@ new TimeTracker();
  * @param {object} initialState
  **/
 function checkForLocalStorage(initialState) {
-  // Set initial state in localstorage
-  if (!localStorage.getItem("populate")) {
-    localStorage.setItem("populate", JSON.stringify(initialState));
-  }
+  chrome.storage.sync.get(["timetracker"], function(result) {
+    console.log("RESULT", result);
+    if (!Object.keys(result).length) {
+      // Set initial state in localstorage
+      chrome.storage.sync.set({ timetracker: initialState });
+    }
+  });
 }
 
 /**
@@ -180,19 +183,28 @@ function saveToLocalStorage(site, startTime) {
   const url = getBaseUrl(site.url);
   const endTime = Date.now();
   const newTiming = endTime - startTime;
-  let currentState = JSON.parse(localStorage.getItem("populate"));
-  const localStorageVal = currentState[url];
-  if (localStorageVal) {
-    const previousTimings = localStorageVal[0];
-    const previousTimestamps = localStorageVal[1];
-    currentState[url] = [
-      [newTiming, ...previousTimings],
-      [endTime, ...previousTimestamps]
-    ];
-  } else {
-    currentState[url] = [[newTiming], [endTime]];
-  }
-  localStorage.setItem("populate", JSON.stringify(currentState));
+
+  chrome.storage.sync.get(["timetracker"], function({ timetracker }) {
+    console.log("CURRENT STATE", timetracker);
+
+    const localStorageVal = timetracker[url] || null;
+    // console.log("localStorageVal", localStorageVal);
+    if (localStorageVal) {
+      const previousTimings = localStorageVal[0];
+      const previousTimestamps = localStorageVal[1];
+      timetracker[url] = [
+        [newTiming, ...previousTimings],
+        [endTime, ...previousTimestamps]
+      ];
+    } else {
+      timetracker[url] = [[newTiming], [endTime]];
+    }
+    console.log("TIME TRACKER", timetracker);
+
+    chrome.storage.sync.set({ timetracker }, function() {
+      console.log("Value is set to", timetracker);
+    });
+  });
 }
 
 /**
