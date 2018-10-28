@@ -130,7 +130,7 @@ function renderGraphView(nodes = []) {
           d.url +
             "<br/> - <br/>Time Spent: " +
             msToMinAndSec(d.time) +
-            " <br/> Percentage: " +
+            " <br/> " +
             ((d.time * 100) / totalTimeSpent).toFixed(2) +
             "%"
         )

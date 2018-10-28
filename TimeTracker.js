@@ -46,21 +46,22 @@ class TimeTracker {
   }
 
   set activeSite(newSite) {
-    let newSiteIsValid = validateNewSite(newSite);
-    if (newSiteIsValid) {
-      this._activeSite = newSite;
-      this._startTime = Date.now();
-      chrome.browserAction.setBadgeText({
-        text: " "
-      });
-      chrome.browserAction.setBadgeBackgroundColor({ color: "limegreen" });
-    } else {
-      this._activeSite = null;
-      this._startTime = null;
-      chrome.browserAction.setBadgeText({
-        text: ""
-      });
-    }
+    validateNewSite(newSite).then(newSiteIsValid => {
+      if (newSiteIsValid) {
+        this._activeSite = newSite;
+        this._startTime = Date.now();
+        chrome.browserAction.setBadgeText({
+          text: " "
+        });
+        chrome.browserAction.setBadgeBackgroundColor({ color: "limegreen" });
+      } else {
+        this._activeSite = null;
+        this._startTime = null;
+        chrome.browserAction.setBadgeText({
+          text: ""
+        });
+      }
+    });
   }
 
   get activeSite() {
@@ -133,13 +134,27 @@ new TimeTracker();
  * If it's not there, set it with initial state.
  * @param {object} initialState
  **/
-function checkForLocalStorage(initialState) {
-  chrome.storage.sync.get(["timetracker"], function(result) {
-    console.log("RESULT", result);
-    if (!Object.keys(result).length) {
-      // Set initial state in localstorage
-      chrome.storage.sync.set({ timetracker: initialState });
-    }
+async function checkForLocalStorage(initialState) {
+  const { timetracker = {} } = await fetchStorage();
+  if (!Object.keys(timetracker).length) {
+    // Set initial state in localstorage
+    chrome.storage.sync.set({ timetracker: initialState });
+  }
+}
+
+/**
+ * Fetches chrome.storage
+ * @returns Promise
+ **/
+function fetchStorage() {
+  return new Promise(function(resolve, reject) {
+    chrome.storage.sync.get("timetracker", function(result) {
+      if (!result) {
+        reject();
+      } else {
+        resolve(result);
+      }
+    });
   });
 }
 
@@ -150,7 +165,7 @@ function checkForLocalStorage(initialState) {
  * @param {object} newSite
  * @returns {boolean}
  */
-function validateNewSite(newSite) {
+async function validateNewSite(newSite) {
   if (!newSite) return false;
   if (newSite.transitionType) {
     let isTransitionValid =
@@ -165,10 +180,12 @@ function validateNewSite(newSite) {
     if (!isTransitionValid) return false;
   }
 
-  // Get blacklist from localstorage
-  let blacklist = JSON.parse(localStorage.getItem("populate"))._blacklist;
+  const {
+    timetracker: { _blacklist }
+  } = await fetchStorage();
 
-  let isSiteValid = blacklist.every(site => !newSite.url.includes(site));
+  // Get blacklist from localstorage
+  let isSiteValid = _blacklist.every(site => !newSite.url.includes(site));
 
   return isSiteValid;
 }
@@ -179,31 +196,27 @@ function validateNewSite(newSite) {
  * @param {object} activeSite
  * @param {number} startTime
  */
-function saveToLocalStorage(site, startTime) {
+async function saveToLocalStorage(site, startTime) {
   const url = getBaseUrl(site.url);
   const endTime = Date.now();
   const newTiming = endTime - startTime;
 
-  chrome.storage.sync.get(["timetracker"], function({ timetracker }) {
-    console.log("CURRENT STATE", timetracker);
+  const { timetracker = {} } = await fetchStorage();
+  const localStorageVal = timetracker[url] || null;
 
-    const localStorageVal = timetracker[url] || null;
-    // console.log("localStorageVal", localStorageVal);
-    if (localStorageVal) {
-      const previousTimings = localStorageVal[0];
-      const previousTimestamps = localStorageVal[1];
-      timetracker[url] = [
-        [newTiming, ...previousTimings],
-        [endTime, ...previousTimestamps]
-      ];
-    } else {
-      timetracker[url] = [[newTiming], [endTime]];
-    }
-    console.log("TIME TRACKER", timetracker);
+  if (localStorageVal) {
+    const previousTimings = localStorageVal[0];
+    const previousTimestamps = localStorageVal[1];
+    timetracker[url] = [
+      [newTiming, ...previousTimings],
+      [endTime, ...previousTimestamps]
+    ];
+  } else {
+    timetracker[url] = [[newTiming], [endTime]];
+  }
 
-    chrome.storage.sync.set({ timetracker }, function() {
-      console.log("Value is set to", timetracker);
-    });
+  chrome.storage.sync.set({ timetracker }, function() {
+    console.log("Value is set to", url, timetracker[url]);
   });
 }
 
