@@ -77,6 +77,7 @@ class TimeTracker {
     // Query for more info about the new tab (like URL),
     // since our chrome event listeners only give us a tab & window id
     chrome.tabs.get(incomingSiteId, newSite => {
+      // https://stackoverflow.com/questions/28431505/unchecked-runtime-lasterror-when-using-chrome-api
       if (chrome.runtime.lastError) {
         console.log(chrome.runtime.lastError.message);
       } else {
