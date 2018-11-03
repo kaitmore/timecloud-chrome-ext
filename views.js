@@ -175,7 +175,6 @@ function drawView(nodes) {
  * the user's prefered filter from local storage
  */
 function createTimeseriesFilterDropdown(settings) {
-  console.log(settings);
   timeseriesFilter = settings.timeseriesFilter || "alltime";
   Object.keys(timeSeriesFilters).forEach(filter => {
     let option = document.createElement("option");

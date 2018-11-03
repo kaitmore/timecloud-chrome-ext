@@ -46,7 +46,6 @@ async function getBlacklist() {
 
 async function getSettings() {
   let { timetracker = {} } = await fetchStorage();
-  console.log(timetracker);
   return timetracker._settings;
 }
 

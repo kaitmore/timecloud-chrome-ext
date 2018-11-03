@@ -29,9 +29,6 @@ class TimeTracker {
     this.handleNewWindow = this.handleNewWindow.bind(this);
     this.handleNewState = this.handleNewState.bind(this);
 
-    // When the TimeTracker class is instantiated, verify localstorage
-    checkForLocalStorage(this.localStorageInitialState);
-
     /* LISTEN FOR NEW ACTIVE TABS */
     chrome.tabs.onActivated.addListener(this.handleNewSite);
 
@@ -131,27 +128,29 @@ class TimeTracker {
 new TimeTracker();
 
 /**
- * Checks for the populate key in local storage.
- * If it's not there, set it with initial state.
- * @param {object} initialState
- **/
-async function checkForLocalStorage(initialState) {
-  const { timetracker = {} } = await fetchStorage();
-  if (!Object.keys(timetracker).length) {
-    // Set initial state in localstorage
-    chrome.storage.sync.set({ timetracker: initialState });
-  }
-}
-
-/**
  * Fetches chrome.storage
  * @returns Promise
  **/
 function fetchStorage() {
   return new Promise(function(resolve, reject) {
     chrome.storage.sync.get("timetracker", function(result) {
-      if (!result) {
-        reject();
+      if (!Object.keys(result).length) {
+        chrome.storage.sync.set({
+          timetracker: {
+            _blacklist: [
+              "chrome://",
+              "about:blank",
+              "chrome-extension://",
+              "localhost",
+              "chrome-devtools",
+              "mailto:",
+              "file://"
+            ],
+            _settings: {
+              timeseriesFilter: "alltime"
+            }
+          }
+        });
       } else {
         resolve(result);
       }
