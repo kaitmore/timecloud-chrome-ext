@@ -4,8 +4,23 @@ const MS_IN_WEEK = 6.048e8;
 function fetchStorage() {
   return new Promise(function(resolve, reject) {
     chrome.storage.sync.get("timetracker", function(result) {
-      if (!result) {
-        reject();
+      if (!Object.keys(result).length) {
+        chrome.storage.sync.set({
+          timetracker: {
+            _blacklist: [
+              "chrome://",
+              "about:blank",
+              "chrome-extension://",
+              "localhost",
+              "chrome-devtools",
+              "mailto:",
+              "file://"
+            ],
+            _settings: {
+              timeseriesFilter: "alltime"
+            }
+          }
+        });
       } else {
         resolve(result);
       }
@@ -31,6 +46,7 @@ async function getBlacklist() {
 
 async function getSettings() {
   let { timetracker = {} } = await fetchStorage();
+  console.log(timetracker);
   return timetracker._settings;
 }
 

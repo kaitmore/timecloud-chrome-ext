@@ -4,6 +4,7 @@
  * @param {Array.<{url: String, time:Number>} nodes
  */
 function renderListView(nodes) {
+  error.classList.remove("show");
   // Clear out any previous list elements
   listViewList.innerHTML = "";
 
@@ -37,7 +38,7 @@ function renderListView(nodes) {
  */
 function renderGraphView(nodes = []) {
   // Clean up DOM
-  error.style.display = "none";
+  error.classList.remove("show");
   d3.selectAll("svg").remove();
   d3.selectAll("#tooltip").remove();
 
@@ -161,7 +162,7 @@ function drawView(nodes) {
   // If there are too few nodes and it's not because a
   // search term is filtering them, show the error message
   if (nodes.length < 4 && !searchTerm) {
-    error.classList.toggle("show");
+    error.classList.add("show");
   } else if (listView) {
     renderListView(nodes);
   } else {
@@ -174,6 +175,7 @@ function drawView(nodes) {
  * the user's prefered filter from local storage
  */
 function createTimeseriesFilterDropdown(settings) {
+  console.log(settings);
   timeseriesFilter = settings.timeseriesFilter || "alltime";
   Object.keys(timeSeriesFilters).forEach(filter => {
     let option = document.createElement("option");
