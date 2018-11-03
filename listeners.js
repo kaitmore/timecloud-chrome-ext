@@ -31,7 +31,7 @@ timeseriesFilterDropdown.addEventListener("change", async e => {
   // Save the selection to the user's settings
   let { timetracker: currentState } = await fetchStorage();
   currentState._settings.timeseriesFilter = timeseriesFilter;
-  chrome.storage.sync.set({ timetracker: currentState });
+  chrome.storage.local.set({ timetracker: currentState });
 });
 
 searchInput.addEventListener("input", async e => {
@@ -87,7 +87,7 @@ blacklistContent.addEventListener("click", async function(e) {
     currentState._blacklist = currentState._blacklist.filter(
       site => site.trim() !== itemToRemove.id.trim()
     );
-    chrome.storage.sync.set({ timetracker: currentState });
+    chrome.storage.local.set({ timetracker: currentState });
   }
 });
 
@@ -98,7 +98,7 @@ blacklistInput.addEventListener("keyup", async e => {
     let { timetracker: currentState } = await fetchStorage();
     if (!currentState._blacklist.includes(newBlacklistSite)) {
       currentState._blacklist.push(newBlacklistSite);
-      chrome.storage.sync.set({ timetracker: currentState });
+      chrome.storage.local.set({ timetracker: currentState });
       createBlacklistDropdownElements([newBlacklistSite]);
     }
     blacklistInput.value = "";

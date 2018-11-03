@@ -133,9 +133,9 @@ new TimeTracker();
  **/
 function fetchStorage() {
   return new Promise(function(resolve, reject) {
-    chrome.storage.sync.get("timetracker", function(result) {
+    chrome.storage.local.get("timetracker", function(result) {
       if (!Object.keys(result).length) {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
           timetracker: {
             _blacklist: [
               "chrome://",
@@ -215,7 +215,7 @@ async function saveToLocalStorage(site, startTime) {
     timetracker[url] = [[newTiming], [endTime]];
   }
 
-  chrome.storage.sync.set({ timetracker }, function() {
+  chrome.storage.local.set({ timetracker }, function() {
     console.log("Value is set to", url, timetracker[url]);
   });
 }

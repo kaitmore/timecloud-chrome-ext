@@ -3,9 +3,9 @@ const MS_IN_WEEK = 6.048e8;
 
 function fetchStorage() {
   return new Promise(function(resolve, reject) {
-    chrome.storage.sync.get("timetracker", function(result) {
+    chrome.storage.local.get("timetracker", function(result) {
       if (!Object.keys(result).length) {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
           timetracker: {
             _blacklist: [
               "chrome://",
