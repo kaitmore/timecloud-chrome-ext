@@ -5,6 +5,18 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css" integrity="sha384-h21C2fcDk/eFsW9sC9h0dhokq5pDinLNklTKoxIZRUn3+hvmgQSffLLQ4G4l2eEr"
     crossorigin="anonymous">
   <style>
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+ 
+    ::-webkit-scrollbar-track {
+      background:transparent;
+    }
+ 
+    ::-webkit-scrollbar-thumb {
+      background: #ddd; 
+    }
+
     *:focus {
       outline: none;
     }
@@ -96,7 +108,8 @@
       color: white;
       margin: 84px 200px;
       padding: 0 10px;
-      overflow: scroll;
+      overflow: auto;
+      overflow-x: hidden;
       display: none;
       flex: 1 0;
     }
