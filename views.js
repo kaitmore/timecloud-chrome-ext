@@ -163,7 +163,9 @@ function drawView(nodes) {
   // search term is filtering them, show the error message
   if (nodes.length < 4 && !searchTerm) {
     error.classList.add("show");
+    listViewButton.setAttribute("disabled", true);
   } else if (listView) {
+    listViewButton.setAttribute("disabled", false);
     renderListView(nodes);
   } else {
     renderGraphView(nodes);
